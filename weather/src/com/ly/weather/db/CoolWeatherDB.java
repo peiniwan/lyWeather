@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.ly.weather.model.City;
-import com.ly.weather.model.County;
 import com.ly.weather.model.Province;
 
 public class CoolWeatherDB {
@@ -50,7 +49,6 @@ public class CoolWeatherDB {
 		if (province != null) {
 			ContentValues values = new ContentValues();
 			values.put("province_name", province.getProvinceName());
-			values.put("province_code", province.getProvinceCode());
 			db.insert("Province", null, values);
 		}
 	}
@@ -68,8 +66,6 @@ public class CoolWeatherDB {
 				province.setId(cursor.getInt(cursor.getColumnIndex("id")));
 				province.setProvinceName(cursor.getString(cursor
 						.getColumnIndex("province_name")));
-				province.setProvinceCode(cursor.getString(cursor
-						.getColumnIndex("province_code")));
 				list.add(province);
 			} while (cursor.moveToNext());
 		}
@@ -106,41 +102,6 @@ public class CoolWeatherDB {
 						.getColumnIndex("city_code")));
 				city.setProvinceId(provinceId);
 				list.add(city);
-			} while (cursor.moveToNext());
-		}
-		return list;
-	}
-
-	/**
-	 * 将County实例存储到数据库。
-	 */
-	public void saveCounty(County county) {
-		if (county != null) {
-			ContentValues values = new ContentValues();
-			values.put("county_name", county.getCountyName());
-			values.put("county_code", county.getCountyCode());
-			values.put("city_id", county.getCityId());
-			db.insert("County", null, values);
-		}
-	}
-
-	/**
-	 * 从数据库读取某城市下所有的县信息。
-	 */
-	public List<County> loadCounties(int cityId) {
-		List<County> list = new ArrayList<County>();
-		Cursor cursor = db.query("County", null, "city_id = ?",
-				new String[] { String.valueOf(cityId) }, null, null, null);
-		if (cursor.moveToFirst()) {
-			do {
-				County county = new County();
-				county.setId(cursor.getInt(cursor.getColumnIndex("id")));
-				county.setCountyName(cursor.getString(cursor
-						.getColumnIndex("county_name")));
-				county.setCountyCode(cursor.getString(cursor
-						.getColumnIndex("county_code")));
-				county.setCityId(cityId);
-				list.add(county);
 			} while (cursor.moveToNext());
 		}
 		return list;
