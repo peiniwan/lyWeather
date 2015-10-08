@@ -63,7 +63,6 @@ public class ChooseAreaActivity extends Activity {
 		listView = (ListView) findViewById(R.id.list_view);
 		titleText = (TextView) findViewById(R.id.title_text);
 		coolWeatherDB = CoolWeatherDB.getInstance(this);
-		Utility.json(this, coolWeatherDB);
 
 		adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1, dataList);
@@ -95,6 +94,9 @@ public class ChooseAreaActivity extends Activity {
 			listView.setSelection(0);
 			titleText.setText("中国");
 			currentLevel = LEVEL_PROVINCE;
+		} else {
+			Utility.json(this, coolWeatherDB);
+			queryProvinces();
 		}
 	}
 
@@ -112,6 +114,9 @@ public class ChooseAreaActivity extends Activity {
 			listView.setSelection(0);
 			titleText.setText(selectedProvince.getProvinceName());
 			currentLevel = LEVEL_CITY;
+		} else {
+			Utility.json(this, coolWeatherDB);
+			queryCities();// 第一次进来开始解析json数据，插入数据库。第二进来直接从数据库获取
 		}
 	}
 
