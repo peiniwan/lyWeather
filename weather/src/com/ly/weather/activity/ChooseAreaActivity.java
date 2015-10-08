@@ -73,7 +73,7 @@ public class ChooseAreaActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				if (currentLevel == LEVEL_PROVINCE) {
-					selectedProvince = provinceList.get(position);
+					selectedProvince = provinceList.get(position);// 点0-北京
 					queryCities();
 				}
 			}
@@ -82,7 +82,7 @@ public class ChooseAreaActivity extends Activity {
 	}
 
 	/**
-	 * 查询全国所有的省，优先从数据库查询，如果没有查询到再去服务器上查询。
+	 * 从数据库查询查询全国所有的省
 	 */
 	private void queryProvinces() {
 		provinceList = coolWeatherDB.loadProvinces();
@@ -99,10 +99,10 @@ public class ChooseAreaActivity extends Activity {
 	}
 
 	/**
-	 * 查询选中省内所有的市，优先从数据库查询，如果没有查询到再去服务器上查询。
+	 * 从数据库查询选中省内所有的市
 	 */
 	private void queryCities() {
-		cityList = coolWeatherDB.loadCities(selectedProvince.getId());
+		cityList = coolWeatherDB.loadCities(selectedProvince.getId() - 1);// 点0-北京-数据库里是1，所以-1
 		if (cityList.size() > 0) {
 			dataList.clear();
 			for (City city : cityList) {

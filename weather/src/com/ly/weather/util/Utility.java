@@ -17,7 +17,7 @@ import com.ly.weather.model.Province;
 public class Utility {
 	public static void json(Context context, CoolWeatherDB coolWeatherDB) {
 		try {
-			// 将json文件读取到buffer数组中
+			// 读取 json文件
 			InputStream is = context.getResources().openRawResource(
 					R.raw.cityinfo);
 			BufferedReader reader = new BufferedReader(
@@ -47,16 +47,21 @@ public class Utility {
 					System.out.println("cityName" + cityName + ";" + "cityCode"
 							+ cityCode);
 					City city = new City();
-					city.setCityName(cityName);
-					city.setCityCode(cityCode);
-					city.setProvinceId(i);
-					coolWeatherDB.saveCity(city);
+					//想通过这样解决进去速度慢的问题，不行？
+					if (city.getCityName() == null) {
+						city.setCityName(cityName);
+						city.setCityCode(cityCode);
+						city.setProvinceId(i);
+						coolWeatherDB.saveCity(city);
+					}
 				}
 				System.out.println("provinceName" + provinceName);
 				Province province = new Province();
-				province.setProvinceName(provinceName);
-				// 将解析出来的数据存储到Province表
-				coolWeatherDB.saveProvince(province);
+				if (province.getProvinceName() == null) {
+					province.setProvinceName(provinceName);
+					// 将解析出来的数据存储到Province表
+					coolWeatherDB.saveProvince(province);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
