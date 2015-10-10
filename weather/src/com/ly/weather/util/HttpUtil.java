@@ -30,6 +30,7 @@ public class HttpUtil {
 					if (listener != null) {
 						// 回调onFinish()方法
 						listener.onFinish(response.toString());
+						
 					}
 				} catch (Exception e) {
 					if (listener != null) {
