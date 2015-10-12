@@ -15,41 +15,20 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ly.weather.R;
 import com.ly.weather.model.WeatherInfo;
+import com.ly.weather.service.AutoUpdateService;
 import com.ly.weather.util.HttpCallbackListener;
 import com.ly.weather.util.HttpUtil;
 import com.ly.weather.util.Utility;
 
 public class WeatherActivity extends Activity implements OnClickListener {
 	private LinearLayout weatherInfoLayout;
-	/**
-	 * 显示城市市名
-	 */
-	private TextView cityNameText;
-	/**
-	 * 用于显示发布时间
-	 */
-	private TextView publishText;
-	/**
-	 * 用于显示天气描述信息
-	 */
-	private TextView weatherDespText;
-	/**
-	 * 用于显示气温1
-	 */
-	private TextView temp1Text;
-	/**
-	 * 用于显示气温2
-	 */
-	private TextView temp2Text;
-	/**
-	 * 用于显示当前日期
-	 */
-	private TextView currentDateText;
+
 	/**
 	 * 切换城市按钮
 	 */
@@ -60,36 +39,96 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private Button refreshWeather;
 
 	private List<WeatherInfo> weatherList;
+	private String cityName;
+
+	private Button menu;
+
+	private TextView publish_text;
+
+	private ImageView line1;
+
+	private LinearLayout qitaday;
+
+	private TextView today_data;
+	private TextView current_city;
+	private ImageView curr_pic;
+	private TextView weather_info;
+	private TextView wind;
+	private TextView tmp;
+
+	private ImageView one_weather_pic;
+	private TextView one_weather_info;
+	private TextView one_tmp;
+	private TextView one_date;
+
+	private ImageView two_weather_pic;
+	private TextView two_weather_info;
+	private TextView two_tmp;
+	private TextView two_date;
+
+	private ImageView three_weather_pic;
+	private TextView three_weather_info;
+	private TextView three_one_tmp;
+	private TextView three_one_date;
+
+	private SharedPreferences prefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.weather_layout);
-		// 初始化各控件
-		weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
-		cityNameText = (TextView) findViewById(R.id.city_name);
-		publishText = (TextView) findViewById(R.id.publish_text);
-		weatherDespText = (TextView) findViewById(R.id.weather_desp);
-		temp1Text = (TextView) findViewById(R.id.temp1);
-		temp2Text = (TextView) findViewById(R.id.temp2);
-		currentDateText = (TextView) findViewById(R.id.current_date);
-		switchCity = (Button) findViewById(R.id.switch_city);
-		refreshWeather = (Button) findViewById(R.id.refresh_weather);
+		setContentView(R.layout.weather_activity);
+		initView();
 
-		String cityName = getIntent().getStringExtra("cityName");
+		cityName = getIntent().getStringExtra("cityName");
 		if (!TextUtils.isEmpty(cityName)) {
 			// 有县级代号时就去查询天气
-			publishText.setText("同步中...");
+			publish_text.setText("同步中...");
 			weatherInfoLayout.setVisibility(View.INVISIBLE);
-			cityNameText.setVisibility(View.INVISIBLE);
-			queryFromServer(cityName, "cityName");
+			line1.setVisibility(View.INVISIBLE);
+			qitaday.setVisibility(View.INVISIBLE);
+			queryFromServer(cityName);
 		} else {
-			// 没有县级代号时就直接显示本地天气
+			// 没有市级代号时就直接显示本地天气
 			showWeather();
 		}
 		switchCity.setOnClickListener(this);
 		refreshWeather.setOnClickListener(this);
+		menu.setOnClickListener(this);
+	}
+
+	private void initView() {
+		// 初始化layout
+		weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
+		qitaday = (LinearLayout) findViewById(R.id.qitaday);
+		line1 = (ImageView) findViewById(R.id.line1);
+		// 上面布局
+		switchCity = (Button) findViewById(R.id.switch_city);
+		refreshWeather = (Button) findViewById(R.id.refresh_weather);
+		menu = (Button) findViewById(R.id.menu);
+		publish_text = (TextView) findViewById(R.id.publish_text);
+		// 第一天
+		today_data = (TextView) findViewById(R.id.today_data);
+		current_city = (TextView) findViewById(R.id.current_city);
+		curr_pic = (ImageView) findViewById(R.id.curr_pic);
+		weather_info = (TextView) findViewById(R.id.weather_info);
+		wind = (TextView) findViewById(R.id.wind);
+		tmp = (TextView) findViewById(R.id.tmp);
+		// 第二天
+		one_weather_pic = (ImageView) findViewById(R.id.one_weather_pic);
+		one_weather_info = (TextView) findViewById(R.id.one_weather_info);
+		one_tmp = (TextView) findViewById(R.id.one_tmp);
+		one_date = (TextView) findViewById(R.id.one_date);
+		// 第三天
+		two_weather_pic = (ImageView) findViewById(R.id.two_weather_pic);
+		two_weather_info = (TextView) findViewById(R.id.two_weather_info);
+		two_tmp = (TextView) findViewById(R.id.two_tmp);
+		two_date = (TextView) findViewById(R.id.two_date);
+		// 第四天
+		three_weather_pic = (ImageView) findViewById(R.id.three_weather_pic);
+		three_weather_info = (TextView) findViewById(R.id.three_weather_info);
+		three_one_tmp = (TextView) findViewById(R.id.three_one_tmp);
+		three_one_date = (TextView) findViewById(R.id.three_one_date);
 	}
 
 	@Override
@@ -102,8 +141,9 @@ public class WeatherActivity extends Activity implements OnClickListener {
 			finish();
 			break;
 		case R.id.refresh_weather:
-			publishText.setText("同步中...");
-			queryFromServer("cityName", "cityCode");
+			publish_text.setText("同步中...");
+
+			queryFromServer(prefs.getString("city_name", ""));
 			break;
 		default:
 			break;
@@ -113,7 +153,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	/**
 	 * 根据传入的地址和类型去向服务器查询天气信息
 	 */
-	private void queryFromServer(final String cityName, final String type) {
+	private void queryFromServer(final String cityName) {
 		String cityNameU8 = null;
 		try {
 			cityNameU8 = URLEncoder.encode(cityName, "UTF-8");
@@ -133,7 +173,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 				weatherList = Utility.handleWeatherResponse(
 						WeatherActivity.this, response);
 
-				Log.d("weather", response);
+				// Log.d("weather", response);
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
@@ -148,7 +188,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						publishText.setText("同步失败");
+						publish_text.setText("同步失败");
 					}
 				});
 			}
@@ -159,18 +199,40 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	 * 从SharedPreferences文件中读取存储的天气信息，并显示到界面上。
 	 */
 	private void showWeather() {
-		for (WeatherInfo weatherInfo : weatherList) {
-			String week = weatherInfo.getWeather();
-		}
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		cityNameText.setText(prefs.getString("city_name", ""));
-		temp1Text.setText(weatherList.get(0).getTemperature());
-		weatherDespText.setText(weatherList.get(0).getWeather());
-		publishText.setText(weatherList.get(0).getWeek());
-		currentDateText.setText(prefs.getString("date", ""));
+
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		// 第一天
+		today_data.setText(prefs.getString("date_all", ""));
+		current_city.setText(prefs.getString("city_name", ""));
+		String shishi = prefs.getString("one_date", "");
+		String[] split = shishi.split("日");
+		publish_text.setText("同步完成"+ split[1]);
+		// curr_pic
+		weather_info.setText(prefs.getString("one_weather_info", ""));
+		wind.setText(prefs.getString("one_wind", ""));
+		tmp.setText(prefs.getString("one_temp", ""));
+		// 第二天
+		// one_weather_pic
+		one_weather_info.setText(prefs.getString("two_weather_info", ""));
+		one_tmp.setText(prefs.getString("two_temp", ""));
+		one_date.setText(prefs.getString("two_date", ""));
+		// 第三天
+		// two_weather_pic;
+		two_weather_info.setText(prefs.getString("three_weather_info", ""));
+		two_tmp.setText(prefs.getString("three_temp", ""));
+		two_date.setText(prefs.getString("three_date", ""));
+		// 第四天
+		// three_weather_pic;
+		three_weather_info.setText(prefs.getString("four_weather_info", ""));
+		three_one_tmp.setText(prefs.getString("four_temp", ""));
+		three_one_date.setText(prefs.getString("four_date", ""));
+
 		weatherInfoLayout.setVisibility(View.VISIBLE);
-		cityNameText.setVisibility(View.VISIBLE);
+		line1.setVisibility(View.VISIBLE);
+		qitaday.setVisibility(View.VISIBLE);
+
+		Intent intent = new Intent(this, AutoUpdateService.class);
+		startService(intent);
 	}
 
 }

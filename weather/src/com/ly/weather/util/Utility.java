@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +21,8 @@ import com.ly.weather.model.Province;
 import com.ly.weather.model.WeatherInfo;
 
 public class Utility {
-	private static ArrayList<WeatherInfo> arrayList;
+	private static ArrayList<WeatherInfo> weatherList;
+	private static WeatherInfo weatherInfo;
 
 	public static void json(Context context, CoolWeatherDB coolWeatherDB) {
 		try {
@@ -54,19 +54,19 @@ public class Utility {
 					String cityName = cityObj.getString("市名");
 					String cityCode = cityObj.getString("编码");
 					City city = new City();
-					if (city.getCityName() == null) {
-						city.setCityName(cityName);
-						city.setCityCode(cityCode);
-						city.setProvinceId(i);
-						coolWeatherDB.saveCity(city);
-					}
+
+					city.setCityName(cityName);
+					city.setCityCode(cityCode);
+					city.setProvinceId(i);
+					coolWeatherDB.saveCity(city);
+
 				}
 				Province province = new Province();
-				if (province.getProvinceName() == null) {
-					province.setProvinceName(provinceName);
-					// 将解析出来的数据存储到Province表
-					coolWeatherDB.saveProvince(province);
-				}
+
+				province.setProvinceName(provinceName);
+				// 将解析出来的数据存储到Province表
+				coolWeatherDB.saveProvince(province);
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -77,52 +77,92 @@ public class Utility {
 	/**
 	 * 解析服务器返回的JSON数据，并将解析出的数据存储到本地。
 	 */
-	public static List<WeatherInfo> handleWeatherResponse(Context context,
+	public static ArrayList<WeatherInfo> handleWeatherResponse(Context context,
 			String response) {
 		try {
 			JSONObject jsonObject = new JSONObject(response);
-			String status = jsonObject.getString("status");
-			String date = jsonObject.getString("date");
+			String dateAll = jsonObject.getString("date");
 			JSONArray results = jsonObject.getJSONArray("results");
 			JSONObject obj = results.getJSONObject(0);
 			String currentCity = obj.getString("currentCity");
-			String pm25 = obj.getString("pm25 ");
+			String pm25 = obj.getString("pm25");
 			JSONArray weather_data = obj.getJSONArray("weather_data");
+
+			weatherList = new ArrayList<WeatherInfo>();
 			for (int i = 0; i < weather_data.length(); i++) {
-				JSONObject weather_dataObj = weather_data.getJSONObject(0);
-				String week = weather_dataObj.getString("date");
+				JSONObject weather_dataObj = weather_data.getJSONObject(i);
+				String date = weather_dataObj.getString("date");
 				String weather = weather_dataObj.getString("weather");
+				String dayPictureUrl = weather_dataObj
+						.getString("dayPictureUrl");
+				String nightPictureUrl = weather_dataObj
+						.getString("nightPictureUrl");
 				String temperature = weather_dataObj.getString("temperature");
 				String wind = weather_dataObj.getString("wind");
-				Log.d("util", status + date + currentCity + pm25 + date
-						+ weather + temperature);
-				WeatherInfo weatherInfo = new WeatherInfo();
-				weatherInfo.setWeek(week);
+				weatherInfo = new WeatherInfo();
+				weatherInfo.setDate(date);
+				weatherInfo.setDayPictureUrl(dayPictureUrl);
+				weatherInfo.setNightPictureUrl(nightPictureUrl);
 				weatherInfo.setTemperature(temperature);
 				weatherInfo.setWeather(weather);
 				weatherInfo.setWind(wind);
-				arrayList = new ArrayList<WeatherInfo>();
-				arrayList.add(weatherInfo);
+				Log.d("util", weatherInfo.toString());
+				weatherList.add(weatherInfo);
 			}
-			saveWeatherInfo(context, status, date, currentCity, pm25);
+			for (WeatherInfo weatherInfo : weatherList) {
+				String week = weatherInfo.getDate();
+				String temperature = weatherInfo.getTemperature();
+				String weather = weatherInfo.getWeather();
+				String wind = weatherInfo.getWind();
+				Log.d("util", temperature + week + weather + wind);
+			}
+
+			saveWeatherInfo(context, dateAll, currentCity, pm25);
+			Log.d("util", dateAll + currentCity + pm25);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return arrayList;
+		return weatherList;
 
 	}
 
 	/**
 	 * 将服务器返回的所有天气信息存储到SharedPreferences文件中。
 	 */
-	public static void saveWeatherInfo(Context context, String status,
-			String date, String currentCity, String pm25) {
+	public static void saveWeatherInfo(Context context, String date,
+			String currentCity, String pm25) {
 		SharedPreferences.Editor editor = PreferenceManager
 				.getDefaultSharedPreferences(context).edit();
-		editor.putBoolean("city_selected", false);
-		editor.putString("date", date);
+		editor.putBoolean("city_selected", true);
+		editor.putString("date_all", date);
 		editor.putString("city_name", currentCity);
 		editor.putString("pm25", pm25);
+		// 第一天
+		editor.putString("one_weather_info", weatherList.get(0).getWeather());
+		editor.putString("one_wind", weatherList.get(0).getWind());
+		editor.putString("one_temp", weatherList.get(0).getTemperature());
+		editor.putString("one_date", weatherList.get(0).getDate());
+		editor.putString("one_day", weatherList.get(0).getDayPictureUrl());
+		editor.putString("one_night", weatherList.get(0).getNightPictureUrl());
+		// 第二天
+		editor.putString("two_weather_info", weatherList.get(1).getWeather());
+		editor.putString("two_temp", weatherList.get(1).getTemperature());
+		editor.putString("two_date", weatherList.get(1).getDate());
+		editor.putString("two_day", weatherList.get(1).getDayPictureUrl());
+		editor.putString("two_night", weatherList.get(1).getNightPictureUrl());
+		// 第三天
+		editor.putString("three_weather_info", weatherList.get(2).getWeather());
+		editor.putString("three_temp", weatherList.get(2).getTemperature());
+		editor.putString("three_date", weatherList.get(2).getDate());
+		editor.putString("three_day", weatherList.get(2).getDayPictureUrl());
+		editor.putString("three_night", weatherList.get(2).getNightPictureUrl());
+		// 第四天
+		editor.putString("four_weather_info", weatherList.get(3).getWeather());
+		editor.putString("four_temp", weatherList.get(3).getTemperature());
+		editor.putString("four_date", weatherList.get(3).getDate());
+		editor.putString("four_day", weatherList.get(3).getDayPictureUrl());
+		editor.putString("four_night", weatherList.get(3).getNightPictureUrl());
+
 		editor.commit();
 	}
 }
