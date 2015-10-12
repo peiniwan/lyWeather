@@ -2,11 +2,13 @@ package com.ly.weather.activity;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Date;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.lidroid.xutils.BitmapUtils;
 import com.ly.weather.R;
 import com.ly.weather.model.WeatherInfo;
 import com.ly.weather.service.AutoUpdateService;
@@ -38,7 +41,6 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	 */
 	private Button refreshWeather;
 
-	private List<WeatherInfo> weatherList;
 	private String cityName;
 
 	private Button menu;
@@ -92,7 +94,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 			// 没有市级代号时就直接显示本地天气
 			showWeather();
 		}
-		switchCity.setOnClickListener(this);
+
 		refreshWeather.setOnClickListener(this);
 		menu.setOnClickListener(this);
 	}
@@ -165,13 +167,13 @@ public class WeatherActivity extends Activity implements OnClickListener {
 				+ cityNameU8
 				+ "&output=json&ak=vZ8GucwXI62RHVG2lPPFC4Gs"
 				+ "&mcode=51:18:C7:9F:D3:9D:6E:85:F8:13:55:B2:18:7F:2E:C7:16:63:E7:40;com.ly.weather ";
-		Log.d("weather", address);
+		// Log.d("weather", address);
 		HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
 
 			@Override
 			public void onFinish(final String response) {
-				weatherList = Utility.handleWeatherResponse(
-						WeatherActivity.this, response);
+				ArrayList<WeatherInfo> weatherList = Utility
+						.handleWeatherResponse(WeatherActivity.this, response);
 
 				// Log.d("weather", response);
 				runOnUiThread(new Runnable() {
@@ -201,28 +203,48 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private void showWeather() {
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		Date date = new Date();
+		int currHours = date.getHours();
+		switchCity.setOnClickListener(this);
+		BitmapUtils bitmapUtils = new BitmapUtils(this);
 		// 第一天
+		if (currHours > 17 || currHours < 7) {
+			String url_1 = prefs.getString("one_night", "");
+			bitmapUtils.display(curr_pic, url_1);
+			String url_2 = prefs.getString("two_night", "");
+			bitmapUtils.display(one_weather_pic, url_2);
+			String url_3 = prefs.getString("three_night", "");
+			bitmapUtils.display(two_weather_pic, url_3);
+			String url_4 = prefs.getString("four_night", "");
+			bitmapUtils.display(three_weather_pic, url_4);
+
+		} else {
+			String url_1 = prefs.getString("one_day", "");
+			bitmapUtils.display(curr_pic, url_1);
+			String url_2 = prefs.getString("two_day", "");
+			bitmapUtils.display(one_weather_pic, url_2);
+			String url_3 = prefs.getString("three_day", "");
+			bitmapUtils.display(two_weather_pic, url_3);
+			String url_4 = prefs.getString("four_day", "");
+			bitmapUtils.display(three_weather_pic, url_4);
+		}
 		today_data.setText(prefs.getString("date_all", ""));
 		current_city.setText(prefs.getString("city_name", ""));
 		String shishi = prefs.getString("one_date", "");
 		String[] split = shishi.split("日");
-		publish_text.setText("同步完成"+ split[1]);
-		// curr_pic
+		publish_text.setText("同步完成" + split[1]);
 		weather_info.setText(prefs.getString("one_weather_info", ""));
 		wind.setText(prefs.getString("one_wind", ""));
 		tmp.setText(prefs.getString("one_temp", ""));
 		// 第二天
-		// one_weather_pic
 		one_weather_info.setText(prefs.getString("two_weather_info", ""));
 		one_tmp.setText(prefs.getString("two_temp", ""));
 		one_date.setText(prefs.getString("two_date", ""));
 		// 第三天
-		// two_weather_pic;
 		two_weather_info.setText(prefs.getString("three_weather_info", ""));
 		two_tmp.setText(prefs.getString("three_temp", ""));
 		two_date.setText(prefs.getString("three_date", ""));
 		// 第四天
-		// three_weather_pic;
 		three_weather_info.setText(prefs.getString("four_weather_info", ""));
 		three_one_tmp.setText(prefs.getString("four_temp", ""));
 		three_one_date.setText(prefs.getString("four_date", ""));
