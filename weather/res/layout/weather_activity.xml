@@ -109,6 +109,8 @@
                 android:textColor="#FFF"
                 android:textSize="18sp" />
 
+           
+
             <TextView
                 android:id="@+id/tmp"
                 android:layout_width="wrap_content"
@@ -119,6 +121,19 @@
                 android:textColor="#FFF"
                 android:textSize="18sp" />
         </LinearLayout>
+         <Button
+                android:id="@+id/lifezhinan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="生活指南"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="5dp"
+                android:layout_marginRight="10dp"
+                android:background="#27A5F9"
+                android:textColor="#FFF"
+                android:textSize="18sp" />
     </RelativeLayout>
 
     <ImageView

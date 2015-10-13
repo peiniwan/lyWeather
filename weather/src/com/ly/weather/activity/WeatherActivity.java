@@ -2,17 +2,14 @@ package com.ly.weather.activity;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Date;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -23,7 +20,6 @@ import android.widget.TextView;
 
 import com.lidroid.xutils.BitmapUtils;
 import com.ly.weather.R;
-import com.ly.weather.model.WeatherInfo;
 import com.ly.weather.service.AutoUpdateService;
 import com.ly.weather.util.HttpCallbackListener;
 import com.ly.weather.util.HttpUtil;
@@ -75,14 +71,20 @@ public class WeatherActivity extends Activity implements OnClickListener {
 
 	private SharedPreferences prefs;
 
+	private TextView lifezhinan;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_activity);
 		initView();
-
+		// 保存这个城市名字是因为点跟新获取选择界面传到来的城市，而点跟新设置的城市是访问网络获取的城市，
+		// 那么下次进来的时候直接展示天气的界面的时候会没有访问网络获取的城市
 		cityName = getIntent().getStringExtra("cityName");
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.edit().putString("cityName", cityName).commit();
+
 		if (!TextUtils.isEmpty(cityName)) {
 			// 有县级代号时就去查询天气
 			publish_text.setText("同步中...");
@@ -97,6 +99,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 
 		refreshWeather.setOnClickListener(this);
 		menu.setOnClickListener(this);
+		lifezhinan.setOnClickListener(this);
 	}
 
 	private void initView() {
@@ -109,6 +112,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		refreshWeather = (Button) findViewById(R.id.refresh_weather);
 		menu = (Button) findViewById(R.id.menu);
 		publish_text = (TextView) findViewById(R.id.publish_text);
+		lifezhinan = (TextView) findViewById(R.id.lifezhinan);
 		// 第一天
 		today_data = (TextView) findViewById(R.id.today_data);
 		current_city = (TextView) findViewById(R.id.current_city);
@@ -145,8 +149,11 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		case R.id.refresh_weather:
 			publish_text.setText("同步中...");
 
-			queryFromServer(prefs.getString("city_name", ""));
+			queryFromServer(prefs.getString("cityName", ""));
 			break;
+		case R.id.lifezhinan:
+			Intent intent2 = new Intent(this, LifeActivity.class);
+			startActivity(intent2);
 		default:
 			break;
 		}
@@ -172,8 +179,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 
 			@Override
 			public void onFinish(final String response) {
-				ArrayList<WeatherInfo> weatherList = Utility
-						.handleWeatherResponse(WeatherActivity.this, response);
+				Utility.handleWeatherResponse(WeatherActivity.this, response);
 
 				// Log.d("weather", response);
 				runOnUiThread(new Runnable() {
@@ -202,7 +208,6 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	 */
 	private void showWeather() {
 
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		Date date = new Date();
 		int currHours = date.getHours();
 		switchCity.setOnClickListener(this);
