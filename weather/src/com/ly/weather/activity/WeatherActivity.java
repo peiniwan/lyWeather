@@ -103,6 +103,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		refreshWeather.setOnClickListener(this);
 		menu.setOnClickListener(this);
 		lifezhinan.setOnClickListener(this);
+		menu.setOnClickListener(this);
 	}
 
 	/**
@@ -111,9 +112,6 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private void initView() {
 		// 初始化layout
 		weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
-		// 其他天
-		qitaday = (GridView) findViewById(R.id.qitaday);
-
 		line1 = (ImageView) findViewById(R.id.line1);
 		// 上面布局
 		switchCity = (Button) findViewById(R.id.switch_city);
@@ -122,7 +120,8 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		publish_text = (TextView) findViewById(R.id.publish_text);
 		lifezhinan = (Button) findViewById(R.id.lifezhinan);
 		pm25 = (Button) findViewById(R.id.pm25);
-		// 第一天
+		// 其他天
+		qitaday = (GridView) findViewById(R.id.qitaday);
 		today_data = (TextView) findViewById(R.id.today_data);
 		current_city = (TextView) findViewById(R.id.current_city);
 		curr_pic = (ImageView) findViewById(R.id.curr_pic);
@@ -149,8 +148,10 @@ public class WeatherActivity extends Activity implements OnClickListener {
 			queryFromServer(currentCity);
 			break;
 		case R.id.lifezhinan:
-			Intent intent2 = new Intent(this, LifeActivity.class);
-			startActivity(intent2);
+			startActivity(new Intent(this, LifeActivity.class));
+		case  R.id.menu:
+			startActivity(new Intent(this, MenuActivity.class));
+		
 		default:
 			break;
 		}

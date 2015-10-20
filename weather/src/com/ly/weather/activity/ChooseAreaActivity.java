@@ -94,6 +94,7 @@ public class ChooseAreaActivity extends Activity {
 					Intent intent = new Intent(ChooseAreaActivity.this,
 							WeatherActivity.class);
 					intent.putExtra("cityName", cityName);
+					setResult(RESULT_OK, intent);
 					System.out.println(cityName);
 					startActivity(intent);
 					finish();
