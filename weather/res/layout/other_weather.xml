@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/weather_pic"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/sun" />
+
+    <TextView
+        android:id="@+id/weather_info"
+        style="@style/everystyle"
+        android:layout_marginTop="7dp"
+        android:text="第一天描述" />
+
+    <TextView
+        android:id="@+id/tmp"
+        style="@style/everystyle"
+        android:layout_marginTop="5dp"
+        android:text="第一天温度" />
+
+    <TextView
+        android:id="@+id/date"
+        style="@style/everystyle"
+        android:layout_marginTop="10dp"
+        android:text="星期几" />
+
+</LinearLayout>

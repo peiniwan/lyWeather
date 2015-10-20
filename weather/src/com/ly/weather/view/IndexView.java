@@ -8,6 +8,12 @@ import android.widget.TextView;
 
 import com.ly.weather.R;
 
+/**
+ * 生活指南里的自定义控件和属性
+ * 
+ * @author Administrator
+ * 
+ */
 public class IndexView extends RelativeLayout {
 	private static final String NAMESPACE = "http://schemas.android.com/apk/res/com.ly.weather";
 

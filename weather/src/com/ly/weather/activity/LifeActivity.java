@@ -1,12 +1,17 @@
 package com.ly.weather.activity;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Window;
 
 import com.ly.weather.R;
+import com.ly.weather.model.WeatherData.IndexInfo;
 import com.ly.weather.view.IndexView;
 
 public class LifeActivity extends Activity {
@@ -20,27 +25,26 @@ public class LifeActivity extends Activity {
 	}
 
 	private void initView() {
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(this);
 		IndexView chuangyi_iv = (IndexView) findViewById(R.id.chuangyi);
 		IndexView ciche_iv = (IndexView) findViewById(R.id.ciche);
 		IndexView lvyou_iv = (IndexView) findViewById(R.id.lvyou);
 		IndexView ganmo_iv = (IndexView) findViewById(R.id.ganmo);
 		IndexView sport_iv = (IndexView) findViewById(R.id.sport);
 		IndexView ziwaixian_iv = (IndexView) findViewById(R.id.ziwaixian);
-		chuangyi_iv.setTitle(prefs.getString("chuangyi_title", ""),
-				prefs.getString("chuangyi_des", ""),
-				prefs.getString("chuangyi_tipt", ""));
-		ciche_iv.setTitle(prefs.getString("xi_title", ""),
-				prefs.getString("xi_des", ""), prefs.getString("xi_tipt", ""));
-		lvyou_iv.setTitle(prefs.getString("lv_title", ""),
-				prefs.getString("lv_des", ""), prefs.getString("lv_tipt", ""));
-		ganmo_iv.setTitle(prefs.getString("gan_title", ""),
-				prefs.getString("gan_des", ""), prefs.getString("gan_tipt", ""));
-		sport_iv.setTitle(prefs.getString("sport_title", ""),
-				prefs.getString("sport_des", ""),
-				prefs.getString("sport_tipt", ""));
-		ziwaixian_iv.setTitle(prefs.getString("zi_title", ""),
-				prefs.getString("zi_des", ""), prefs.getString("zi_tipt", ""));
+
+		ArrayList<IndexInfo> index = WeatherActivity.index;
+
+		chuangyi_iv.setTitle(index.get(0).title, index.get(0).des,
+				index.get(0).tipt);
+		ciche_iv.setTitle(index.get(1).title, index.get(1).des,
+				index.get(1).tipt);
+		lvyou_iv.setTitle(index.get(2).title, index.get(2).des,
+				index.get(2).tipt);
+		ganmo_iv.setTitle(index.get(3).title, index.get(3).des,
+				index.get(3).tipt);
+		sport_iv.setTitle(index.get(4).title, index.get(4).des,
+				index.get(4).tipt);
+		ziwaixian_iv.setTitle(index.get(5).title, index.get(5).des,
+				index.get(5).tipt);
 	}
 }
