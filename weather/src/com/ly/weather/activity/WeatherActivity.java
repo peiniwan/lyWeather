@@ -85,7 +85,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.weather_activity);
 		initView();// 初始化控件
 		cityName = getIntent().getStringExtra("cityName");
-//		System.out.println("WeatherActivity"+cityName);
+		// System.out.println("WeatherActivity"+cityName);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		if (!TextUtils.isEmpty(cityName)) {
@@ -96,10 +96,12 @@ public class WeatherActivity extends Activity implements OnClickListener {
 			qitaday.setVisibility(View.INVISIBLE);
 			queryFromServer(cityName);
 		} else {// 没有就保存保存的json数据去展示界面
-			currentCity = prefs.getString("current_city", "");// 获取保存的城市名
-			String result = SDstore.read2sd(setAddress(currentCity));// 获取保存的json数据
-			System.out.println("result" + result);
-			parseData(result);// 解析并展示界面
+			currentCity = prefs.getString("current_city", "");// 获取保存的城市名,有可能一进去没网就没有保存城市，进去空指针
+			if (currentCity != null) {
+				String result = SDstore.read2sd(setAddress(currentCity));// 获取保存的json数据
+				System.out.println("result" + result);
+				parseData(result);// 解析并展示界面
+			}
 		}
 		refreshWeather.setOnClickListener(this);
 		menu.setOnClickListener(this);
@@ -229,7 +231,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 					@Override
 					public void run() {
 						parseData(response);// 子线程刷新ui
-	
+
 					}
 				});
 

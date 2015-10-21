@@ -54,8 +54,8 @@ public class MenuActivity extends Activity implements OnClickListener {
 		case R.id.bt_add:
 			Intent intent = new Intent(this, ChooseAreaActivity.class);
 			prefs.edit().putBoolean("city_selected", false).commit();
-			startActivityForResult(intent, 0);
-			finish();
+			startActivityForResult(intent, 1);
+//			finish();
 			break;
 		case R.id.tv_local:
 
@@ -72,7 +72,7 @@ public class MenuActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case 0:
+		case 1:
 			if (resultCode == RESULT_OK) {
 				String cityName = data.getStringExtra("cityName");
 				System.out.println("cityName" + cityName);
