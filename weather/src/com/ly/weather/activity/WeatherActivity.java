@@ -85,6 +85,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.weather_activity);
 		initView();// 初始化控件
 		cityName = getIntent().getStringExtra("cityName");
+//		System.out.println("WeatherActivity"+cityName);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		if (!TextUtils.isEmpty(cityName)) {
@@ -145,13 +146,14 @@ public class WeatherActivity extends Activity implements OnClickListener {
 			break;
 		case R.id.refresh_weather:
 			publish_text.setText("同步中...");
+			String currentCity = prefs.getString("current_city", "");// 跟新的时候应该重新获取保存的城市名
 			queryFromServer(currentCity);
 			break;
 		case R.id.lifezhinan:
 			startActivity(new Intent(this, LifeActivity.class));
-		case  R.id.menu:
+		case R.id.menu:
 			startActivity(new Intent(this, MenuActivity.class));
-		
+
 		default:
 			break;
 		}
@@ -227,7 +229,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 					@Override
 					public void run() {
 						parseData(response);// 子线程刷新ui
-						prefs.edit().putBoolean("city_selected", true).commit();
+	
 					}
 				});
 
@@ -251,6 +253,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	 * @param result
 	 */
 	protected void parseData(String result) {
+		prefs.edit().putBoolean("city_selected", true).commit();
 		Gson gson = new Gson();
 		weatherData = gson.fromJson(result, WeatherData.class);
 		System.out.println("parseData-----------weatherData" + weatherData);
@@ -274,10 +277,6 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		}
 		today_data.setText(weatherData.date);
 		current_city.setText(weatherData.results.get(0).currentCity);
-		if (weatherData.results.get(0).currentCity != null) {
-			System.out.println("current_city"
-					+ weatherData.results.get(0).currentCity);
-		}
 		prefs.edit()
 				.putString("current_city",
 						weatherData.results.get(0).currentCity).commit();

@@ -2,7 +2,9 @@ package com.ly.weather.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -19,6 +21,7 @@ public class MenuActivity extends Activity implements OnClickListener {
 	private TextView tv_local;
 	private ListView lv;
 	private StringBuilder builder;
+	private SharedPreferences prefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +30,12 @@ public class MenuActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.menu_activity);
 		initView();
 		builder = new StringBuilder();
-		String[] city = builder.toString().split(";");
+		String[] city = builder.toString().split(",");
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
 				R.layout.menu_city_item, R.id.tv_city_name, city);
 		adapter.notifyDataSetChanged();
 		lv.setAdapter(adapter);
-
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		bt_add.setOnClickListener(this);
 		bt_setting.setOnClickListener(this);
 		tv_local.setOnClickListener(this);
@@ -50,6 +53,7 @@ public class MenuActivity extends Activity implements OnClickListener {
 		switch (v.getId()) {
 		case R.id.bt_add:
 			Intent intent = new Intent(this, ChooseAreaActivity.class);
+			prefs.edit().putBoolean("city_selected", false).commit();
 			startActivityForResult(intent, 0);
 			finish();
 			break;
@@ -67,10 +71,19 @@ public class MenuActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode == RESULT_OK) {
-			String cityName = data.getStringExtra("cityName");
-			System.out.println("cityName" + cityName);
+		switch (requestCode) {
+		case 0:
+			if (resultCode == RESULT_OK) {
+				String cityName = data.getStringExtra("cityName");
+				System.out.println("cityName" + cityName);
+				builder.append(cityName);
+			}
+			break;
+
+		default:
+			break;
 		}
+
 	}
 
 }
