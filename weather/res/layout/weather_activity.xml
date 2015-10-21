@@ -24,7 +24,8 @@
             android:layout_centerInParent="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="10dp"
-            android:background="@drawable/refresh" />
+            android:background="@drawable/refresh"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/menu"
@@ -36,82 +37,97 @@
             android:background="@drawable/img_menu" />
     </RelativeLayout>
 
-    <RelativeLayout
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/srl"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="8" >
+        android:layout_height="wrap_content" >
 
-        <TextView
-            android:id="@+id/today_data"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:text="今天日期"
-            android:textColor="#FFF"
-            android:textSize="18sp" />
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
-        <TextView
-            android:id="@+id/publish_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:text="更新中"
-            android:textColor="#FFF"
-            android:textSize="18sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
 
-        <include
-            android:id="@+id/weather_info_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            layout="@layout/one_weather" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="430dp" >
 
-        <Button
-            android:id="@+id/lifezhinan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="10dp"
-            android:background="@null"
-            android:gravity="center"
-            android:text="生活指南"
-            android:textColor="#FFF"
-            android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/today_data"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="10dp"
+                        android:text="今天日期"
+                        android:textColor="#FFF"
+                        android:textSize="18sp" />
 
-        <Button
-            android:id="@+id/pm25"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/today_data"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:background="@null"
-            android:gravity="center"
-            android:text="PM25"
-            android:textColor="#FFF"
-            android:textSize="18sp" />
-    </RelativeLayout>
+                    <TextView
+                        android:id="@+id/publish_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginTop="10dp"
+                        android:text="更新中"
+                        android:textColor="#FFF"
+                        android:textSize="18sp" />
 
-    <ImageView
-        android:id="@+id/line1"
-        android:layout_width="match_parent"
-        android:layout_height="1dp" />
+                    <include
+                        android:id="@+id/weather_info_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        layout="@layout/one_weather" />
 
-    <GridView
-        android:id="@+id/qitaday"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:numColumns="3"
-        android:orientation="horizontal"
-        android:verticalSpacing="20dp" >
-    </GridView>
+                    <Button
+                        android:id="@+id/lifezhinan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@null"
+                        android:gravity="center"
+                        android:text="生活指南"
+                        android:textColor="#FFF"
+                        android:textSize="18sp" />
+
+                    <Button
+                        android:id="@+id/pm25"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_below="@id/today_data"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@null"
+                        android:gravity="center"
+                        android:text="PM25"
+                        android:textColor="#FFF"
+                        android:textSize="18sp" />
+                </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/line1"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp" />
+
+                <GridView
+                    android:id="@+id/qitaday"
+                    android:layout_width="match_parent"
+                    android:layout_height="110dp"
+                    android:numColumns="3"
+                    android:orientation="horizontal"
+                    android:verticalSpacing="20dp" >
+                </GridView>
+            </LinearLayout>
+        </ScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </LinearLayout>

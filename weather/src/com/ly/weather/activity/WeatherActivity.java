@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,7 +35,8 @@ import com.ly.weather.util.HttpCallbackListener;
 import com.ly.weather.util.HttpUtil;
 import com.ly.weather.util.SDstore;
 
-public class WeatherActivity extends Activity implements OnClickListener {
+public class WeatherActivity extends Activity implements OnClickListener,
+		OnRefreshListener {
 
 	/**
 	 * 上面的按钮
@@ -77,6 +80,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private String cityName;// 从选择的activity传递过来的城市名
 	private SharedPreferences prefs;
 	public static String currentCity;// 从网络获取的当前城市
+	private SwipeRefreshLayout srl;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +111,11 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		menu.setOnClickListener(this);
 		lifezhinan.setOnClickListener(this);
 		menu.setOnClickListener(this);
+		srl.setOnRefreshListener(this);
+		srl.setColorScheme(android.R.color.holo_blue_bright,
+				android.R.color.holo_green_light,
+				android.R.color.holo_red_light,
+				android.R.color.holo_orange_light);
 	}
 
 	/**
@@ -116,6 +125,8 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		// 初始化layout
 		weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
 		line1 = (ImageView) findViewById(R.id.line1);
+		srl = (SwipeRefreshLayout) findViewById(R.id.srl);
+
 		// 上面布局
 		switchCity = (Button) findViewById(R.id.switch_city);
 		refreshWeather = (Button) findViewById(R.id.refresh_weather);
@@ -317,4 +328,17 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		}
 	}
 
+	/**
+	 * OnRefreshListener接口必须实现的方法，在这里下拉刷新
+	 */
+	@Override
+	public void onRefresh() {
+		String currentCity = prefs.getString("current_city", "");// 跟新的时候应该重新获取保存的城市名
+		publish_text.setText("同步中...");
+		queryFromServer(currentCity);
+		if (weatherData.status.equals("success")) {
+			srl.setRefreshing(false);
+		}
+
+	}
 }

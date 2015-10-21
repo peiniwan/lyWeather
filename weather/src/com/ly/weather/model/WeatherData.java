@@ -4,11 +4,12 @@ import java.util.ArrayList;
 
 public class WeatherData {
 	public String date;// 日期
+	public String status;// 更新状态
 	public ArrayList<Weath> results;// 返回结果
 
 	@Override
 	public String toString() {
-		return "WeatherData [results=" + results + ",data" + date + "]";
+		return "WeatherData [results=" + results + ",status" + status + "]";
 	}
 
 	public class Weath {
