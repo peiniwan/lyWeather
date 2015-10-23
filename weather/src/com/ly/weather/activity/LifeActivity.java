@@ -1,27 +1,27 @@
 package com.ly.weather.activity;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Window;
 
 import com.ly.weather.R;
 import com.ly.weather.model.WeatherData.IndexInfo;
 import com.ly.weather.view.IndexView;
 
-public class LifeActivity extends Activity {
+/**
+ * 生活指南
+ * 
+ * @author Administrator
+ * 
+ */
+public class LifeActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.life_activity);
 		initView();
-		// init(R.id.chuangyi, 0);
 	}
 
 	private void initView() {

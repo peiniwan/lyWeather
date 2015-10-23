@@ -4,20 +4,36 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="管理城市"
-        android:textSize="22sp" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#484E61" >
+
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="管理城市"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tv_local"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="40dp"
         android:clickable="true"
         android:text="当前位置"
         android:textSize="18sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/holo_blue_bright" />
 
     <ListView
         android:id="@+id/lv"
@@ -26,26 +42,17 @@
         android:layout_weight="1" >
     </ListView>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:layout_height="wrap_content" >
 
         <Button
             android:id="@+id/bt_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
+            android:layout_centerHorizontal="true"
             android:padding="10dp"
             android:text="添加城市" />
-
-        <Button
-            android:id="@+id/bt_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:padding="10dp"
-            android:text="设置" />
-    </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>

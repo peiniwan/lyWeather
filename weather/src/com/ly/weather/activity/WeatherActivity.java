@@ -5,9 +5,11 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -31,11 +33,12 @@ import com.ly.weather.model.WeatherData;
 import com.ly.weather.model.WeatherData.IndexInfo;
 import com.ly.weather.model.WeatherData.WeatherInfo;
 import com.ly.weather.service.AutoUpdateService;
+import com.ly.weather.util.ActivityCollector;
 import com.ly.weather.util.HttpCallbackListener;
 import com.ly.weather.util.HttpUtil;
 import com.ly.weather.util.SDstore;
 
-public class WeatherActivity extends Activity implements OnClickListener,
+public class WeatherActivity extends BaseActivity implements OnClickListener,
 		OnRefreshListener {
 
 	/**
@@ -80,7 +83,7 @@ public class WeatherActivity extends Activity implements OnClickListener,
 	private String cityName;// 从选择的activity传递过来的城市名
 	private SharedPreferences prefs;
 	public static String currentCity;// 从网络获取的当前城市
-	private SwipeRefreshLayout srl;
+	private SwipeRefreshLayout srl;// 下拉刷新控件
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -152,9 +155,10 @@ public class WeatherActivity extends Activity implements OnClickListener,
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.switch_city:
-			Intent intent = new Intent(this, ChooseAreaActivity.class);
-			intent.putExtra("from_weather_activity", true);
-			startActivity(intent);
+			// Intent intent = new Intent(this, ChooseAreaActivity.class);
+			// intent.putExtra("from_weather_activity", true);
+			// startActivity(intent);
+			startActivity(new Intent(this, MenuActivity.class));
 			finish();
 			break;
 		case R.id.refresh_weather:
@@ -165,7 +169,6 @@ public class WeatherActivity extends Activity implements OnClickListener,
 		case R.id.lifezhinan:
 			startActivity(new Intent(this, LifeActivity.class));
 		case R.id.menu:
-			startActivity(new Intent(this, MenuActivity.class));
 
 		default:
 			break;
@@ -241,8 +244,9 @@ public class WeatherActivity extends Activity implements OnClickListener,
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						parseData(response);// 子线程刷新ui
-
+						if (response != null) {
+							parseData(response);// 子线程刷新ui
+						}
 					}
 				});
 
@@ -320,12 +324,38 @@ public class WeatherActivity extends Activity implements OnClickListener,
 		int currHours = date.getHours();
 		switchCity.setOnClickListener(this);
 		BitmapUtils bitmapUtils = new BitmapUtils(this);
-		// 第一天
+
 		if (currHours > 17 || currHours < 7) {
-			bitmapUtils.display(iv, dayUrl);
-		} else {
 			bitmapUtils.display(iv, nigheUrl);
+		} else {
+			bitmapUtils.display(iv, dayUrl);
 		}
+	}
+
+	// 检测网络,返回FALSE说明没网
+	public static boolean checkNetworkAvailable(Context context) {
+		ConnectivityManager connectivity = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		if (connectivity == null) {
+			return false;
+		} else {
+			NetworkInfo[] info = connectivity.getAllNetworkInfo();
+			if (info != null) {
+				for (int i = 0; i < info.length; i++) {
+					if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+						NetworkInfo netWorkInfo = info[i];
+						if (netWorkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+							return true;
+						} else if (netWorkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+
+		return false;
+
 	}
 
 	/**
@@ -333,12 +363,22 @@ public class WeatherActivity extends Activity implements OnClickListener,
 	 */
 	@Override
 	public void onRefresh() {
-		String currentCity = prefs.getString("current_city", "");// 跟新的时候应该重新获取保存的城市名
-		publish_text.setText("同步中...");
-		queryFromServer(currentCity);
-		if (weatherData.status.equals("success")) {
-			srl.setRefreshing(false);
+		boolean networkAvailable = checkNetworkAvailable(this);
+		if (networkAvailable == true) {
+			String currentCity = prefs.getString("current_city", "");// 跟新的时候应该重新获取保存的城市名
+			publish_text.setText("同步中...");
+			queryFromServer(currentCity);
+			if (weatherData.status.equals("success")) {
+				srl.setRefreshing(false);
+			}
+		} else {
+			publish_text.setText("同步中...");
 		}
+	}
 
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		ActivityCollector.finishAll();
 	}
 }

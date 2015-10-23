@@ -3,7 +3,6 @@ package com.ly.weather.activity;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,11 +17,12 @@ import android.widget.TextView;
 
 import com.ly.weather.R;
 import com.ly.weather.db.CoolWeatherDB;
+import com.ly.weather.model.AddCity;
 import com.ly.weather.model.City;
 import com.ly.weather.model.Province;
 import com.ly.weather.util.Utility;
 
-public class ChooseAreaActivity extends Activity {
+public class ChooseAreaActivity extends BaseActivity {
 	public static final int LEVEL_PROVINCE = 0;
 	public static final int LEVEL_CITY = 1;
 
@@ -56,14 +56,16 @@ public class ChooseAreaActivity extends Activity {
 	 * 是否从WeatherActivity中跳转过来。
 	 */
 	private boolean isFromWeatherActivity;
+	private SharedPreferences prefs;
+	private AddCity addCity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		isFromWeatherActivity = getIntent().getBooleanExtra(
 				"from_weather_activity", false);
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(this);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		// 已经选择了城市且不是从WeatherActivity跳转过来，才会直接跳转到WeatherActivity
 		if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
 			Intent intent = new Intent(this, WeatherActivity.class);
@@ -71,13 +73,15 @@ public class ChooseAreaActivity extends Activity {
 			finish();
 			return;
 		}
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.choose_area);
 
-		setContentView(R.layout.choose_area);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.choose_activity);
+
 		listView = (ListView) findViewById(R.id.list_view);
 		titleText = (TextView) findViewById(R.id.title_text);
+
 		coolWeatherDB = CoolWeatherDB.getInstance(this);
+		addCity = new AddCity();
 
 		adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1, dataList);
@@ -94,9 +98,9 @@ public class ChooseAreaActivity extends Activity {
 					Intent intent = new Intent(ChooseAreaActivity.this,
 							WeatherActivity.class);
 					intent.putExtra("cityName", cityName);
-					Intent intent_menu = new Intent();
-					intent_menu.putExtra("cityName", cityName);
-					setResult(RESULT_OK, intent_menu);
+
+					addCity.setCityName(cityName);
+					coolWeatherDB.saveAddCity(addCity);
 					System.out.println("ChooseAreaActivity" + cityName);
 					startActivity(intent);
 					finish();

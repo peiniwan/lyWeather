@@ -8,6 +8,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.ly.weather.model.AddCity;
 import com.ly.weather.model.City;
 import com.ly.weather.model.Province;
 
@@ -22,6 +23,7 @@ public class CoolWeatherDB {
 	public static final int VERSION = 1;
 	private static CoolWeatherDB coolWeatherDB;
 	private SQLiteDatabase db;
+	private String cityName;
 
 	/**
 	 * 将构造方法私有化
@@ -40,6 +42,54 @@ public class CoolWeatherDB {
 			coolWeatherDB = new CoolWeatherDB(context);
 		}
 		return coolWeatherDB;
+	}
+
+	/**
+	 * 选中的城市添加到数据库
+	 */
+	public void saveAddCity(AddCity addCity) {
+		if (addCity != null) {
+			ContentValues values = new ContentValues();
+			Cursor cursor = db.query("AddCity", null, null, null, null, null,
+					null);
+			while (cursor.moveToNext()) {
+				cityName = cursor.getString(cursor.getColumnIndex("city_name"));
+				if (addCity.getCityName() != cityName) {
+					System.out.println("addCity.getCityName()"
+							+ addCity.getCityName() + "-----------" + cityName);
+					values.put("city_name", addCity.getCityName());
+				}
+			}
+			System.out.println("coll --cityName" + cityName);
+
+			db.insert("AddCity", null, values);
+		}
+	}
+
+	/**
+	 * 读取保存的城市
+	 */
+	public List<AddCity> loadAddCity() {
+		List<AddCity> list = new ArrayList<AddCity>();
+		Cursor cursor = db.query("AddCity", null, null, null, null, null, null);
+		if (cursor.moveToFirst()) {
+			do {
+				AddCity addCity = new AddCity();
+				addCity.setCityName(cursor.getString(cursor
+						.getColumnIndex("city_name")));
+				list.add(addCity);
+
+			} while (cursor.moveToNext());
+		}
+		return list;
+	}
+
+	/**
+	 * 删除addcity表中的数据
+	 */
+	public void removeCity(String name) {
+		int i = db.delete("AddCity", " city_name=?", new String[] { name });
+		System.out.println("i--" + i);
 	}
 
 	/**
