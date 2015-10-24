@@ -27,7 +27,7 @@ import com.ly.weather.R;
 import com.ly.weather.db.CoolWeatherDB;
 import com.ly.weather.model.AddCity;
 
-public class MenuActivity extends BaseActivity implements OnClickListener {
+public class CityActivity extends BaseActivity implements OnClickListener {
 	private Button bt_add;
 	private Button bt_setting;
 	private TextView tv_local;
@@ -61,7 +61,7 @@ public class MenuActivity extends BaseActivity implements OnClickListener {
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				Intent intent = new Intent(MenuActivity.this,
+				Intent intent = new Intent(CityActivity.this,
 						WeatherActivity.class);
 				intent.putExtra("cityName", cities.get(position));
 				startActivity(intent);
@@ -195,8 +195,8 @@ public class MenuActivity extends BaseActivity implements OnClickListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		tv_local.setText("当前位置(" + local_list.get(3) + local_list.get(2)
-				+ local_list.get(1) + ")");
+//		tv_local.setText("当前位置(" + local_list.get(3) + local_list.get(2)
+//				+ local_list.get(1) + ")");
 	}
 
 	@Override

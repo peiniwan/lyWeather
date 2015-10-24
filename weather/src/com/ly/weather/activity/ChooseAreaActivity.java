@@ -157,6 +157,8 @@ public class ChooseAreaActivity extends BaseActivity {
 	public void onBackPressed() {
 		if (currentLevel == LEVEL_CITY) {
 			queryProvinces();
+			Intent intent = new Intent(this, CityActivity.class);
+			startActivity(intent);
 		} else {
 			// 如果是从 WeatherActivity跳转过来的，则应该重新回到 WeatherActivity。
 			if (isFromWeatherActivity) {

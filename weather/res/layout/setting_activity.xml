@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:lyweather="http://schemas.android.com/apk/res/com.ly.weather"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#484E61" >
+
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="设置"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+    </RelativeLayout>
+
+    <com.ly.weather.view.SettingItemView
+        android:id="@+id/notifiction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        lyweather:desc_off="关闭通知栏"
+        lyweather:desc_on="开启通知栏"
+        lyweather:title="通知栏显示设置" >
+    </com.ly.weather.view.SettingItemView>
+
+    <com.ly.weather.view.SettingItemView
+        android:id="@+id/service"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        lyweather:desc_off="关闭后台更新"
+        lyweather:desc_on="开启后台更新"
+        lyweather:title="后台更新设置" >
+    </com.ly.weather.view.SettingItemView>
+
+</LinearLayout>

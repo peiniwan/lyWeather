@@ -2,6 +2,7 @@ package com.ly.weather.activity;
 
 import java.util.ArrayList;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 
@@ -46,5 +47,12 @@ public class LifeActivity extends BaseActivity {
 				index.get(4).tipt);
 		ziwaixian_iv.setTitle(index.get(5).title, index.get(5).des,
 				index.get(5).tipt);
+	}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		Intent intent = new Intent(this, WeatherActivity.class);
+		startActivity(intent);
 	}
 }

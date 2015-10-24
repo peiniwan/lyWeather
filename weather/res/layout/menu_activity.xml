@@ -51,8 +51,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
+            android:background="@drawable/add_city_draw_selector"
             android:padding="10dp"
-            android:text="添加城市" />
+            android:text="添加城市"
+            android:textColor="@drawable/add_city_color_selector" />
     </RelativeLayout>
 
 </LinearLayout>

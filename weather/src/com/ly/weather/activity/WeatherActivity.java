@@ -5,13 +5,19 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
@@ -24,6 +30,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -37,6 +44,9 @@ import com.ly.weather.util.ActivityCollector;
 import com.ly.weather.util.HttpCallbackListener;
 import com.ly.weather.util.HttpUtil;
 import com.ly.weather.util.SDstore;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 public class WeatherActivity extends BaseActivity implements OnClickListener,
 		OnRefreshListener {
@@ -84,6 +94,10 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	private SharedPreferences prefs;
 	public static String currentCity;// 从网络获取的当前城市
 	private SwipeRefreshLayout srl;// 下拉刷新控件
+	private NotificationManager mNotificationManager;
+	private RemoteViews mRemoteViews;
+
+	private int currHours;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -91,10 +105,9 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_activity);
 		initView();// 初始化控件
+		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		cityName = getIntent().getStringExtra("cityName");
-		// System.out.println("WeatherActivity"+cityName);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
 		if (!TextUtils.isEmpty(cityName)) {
 			// 有市级代号时就去查询天气
 			publish_text.setText("同步中...");
@@ -110,10 +123,12 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 				parseData(result);// 解析并展示界面
 			}
 		}
+
 		refreshWeather.setOnClickListener(this);
 		menu.setOnClickListener(this);
 		lifezhinan.setOnClickListener(this);
 		menu.setOnClickListener(this);
+		// 下拉刷新设置参数
 		srl.setOnRefreshListener(this);
 		srl.setColorScheme(android.R.color.holo_blue_bright,
 				android.R.color.holo_green_light,
@@ -158,7 +173,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			// Intent intent = new Intent(this, ChooseAreaActivity.class);
 			// intent.putExtra("from_weather_activity", true);
 			// startActivity(intent);
-			startActivity(new Intent(this, MenuActivity.class));
+			startActivity(new Intent(this, CityActivity.class));
 			finish();
 			break;
 		case R.id.refresh_weather:
@@ -169,7 +184,8 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		case R.id.lifezhinan:
 			startActivity(new Intent(this, LifeActivity.class));
 		case R.id.menu:
-
+			startActivity(new Intent(this, SettingActivity.class));
+			finish();
 		default:
 			break;
 		}
@@ -281,7 +297,8 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		for (int i = 1; i < weatherList.size(); i++) {
 			qitaList.add(weatherList.get(i));
 		}
-		showWeather();
+		showWeather();// 展示天气
+		showNotification();// 展示通知栏
 	}
 
 	/**
@@ -311,9 +328,13 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		line1.setVisibility(View.VISIBLE);
 		qitaday.setVisibility(View.VISIBLE);
 
-		Intent intent = new Intent(this, AutoUpdateService.class);
-		intent.putExtra("currentCity", currentCity);
-		startService(intent);
+		boolean serviceSetting = prefs.getBoolean("service", false);
+		if (serviceSetting == true) {
+			Intent intent = new Intent(this, AutoUpdateService.class);
+			intent.putExtra("currentCity", currentCity);
+			startService(intent);
+			System.out.println("开启服务了！");
+		}
 	}
 
 	/**
@@ -321,10 +342,9 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	 */
 	private void showPic(ImageView iv, String dayUrl, String nigheUrl) {
 		Date date = new Date();
-		int currHours = date.getHours();
+		currHours = date.getHours();
 		switchCity.setOnClickListener(this);
 		BitmapUtils bitmapUtils = new BitmapUtils(this);
-
 		if (currHours > 17 || currHours < 7) {
 			bitmapUtils.display(iv, nigheUrl);
 		} else {
@@ -332,7 +352,12 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		}
 	}
 
-	// 检测网络,返回FALSE说明没网
+	/**
+	 * 检测网络,返回FALSE说明没网
+	 * 
+	 * @param context
+	 * @return
+	 */
 	public static boolean checkNetworkAvailable(Context context) {
 		ConnectivityManager connectivity = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -373,6 +398,85 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			}
 		} else {
 			publish_text.setText("同步中...");
+		}
+	}
+
+	public void showNotification() {
+		if (prefs.getBoolean("notifiction", false) == true) {// 如果设置里是true才展示
+			String currentCity = prefs.getString("current_city", "");
+			mRemoteViews = new RemoteViews(getPackageName(),
+					R.layout.notification);// 填充通知栏布局
+			// 使用ImageLoader加载图片,xutils不能获取bitmap对象
+			// 显示图片的配置
+			DisplayImageOptions options = new DisplayImageOptions.Builder()
+					.showImageOnLoading(R.drawable.loading)
+					// 不知道为什么不能显示默认图片
+					.showImageForEmptyUri(R.drawable.loading)
+					.showImageOnFail(R.drawable.loading).cacheInMemory(true)
+					.cacheOnDisk(true).bitmapConfig(Bitmap.Config.RGB_565)
+					.build();
+
+			if (currHours > 17 || currHours < 7) {
+				ImageLoader.getInstance().loadImage(
+						oneWeatherInfo.nightPictureUrl, options,
+						new SimpleImageLoadingListener() {// 下载成功此方法调用
+
+							@Override
+							public void onLoadingComplete(String imageUri,
+									View view, Bitmap loadedImage) {
+								super.onLoadingComplete(imageUri, view,
+										loadedImage);
+								mRemoteViews.setImageViewBitmap(
+										R.id.iv_notification, loadedImage);// 设置图片
+								System.out
+										.println(oneWeatherInfo.nightPictureUrl);
+							}
+
+						});
+
+			} else {
+				ImageLoader.getInstance().loadImage(
+						oneWeatherInfo.dayPictureUrl, options,
+						new SimpleImageLoadingListener() {
+							@Override
+							public void onLoadingComplete(String imageUri,
+									View view, Bitmap loadedImage) {
+								super.onLoadingComplete(imageUri, view,
+										loadedImage);
+								mRemoteViews.setImageViewBitmap(
+										R.id.iv_notification, loadedImage);
+								System.out.println(loadedImage.getHeight());
+								System.out
+										.println(oneWeatherInfo.dayPictureUrl);
+							}
+
+						});
+			}
+
+			mRemoteViews.setTextViewText(R.id.notification_city_name,
+					currentCity);
+			mRemoteViews.setTextViewText(R.id.notification_des,
+					oneWeatherInfo.weather);
+			mRemoteViews.setTextViewText(R.id.notification_tmp,
+					oneWeatherInfo.temperature);
+
+			Intent resultIntent = new Intent(this, WeatherActivity.class);// 点击通知回到activity
+			TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);// 这里获取PendingIntent是通过创建TaskStackBuilder对象
+			stackBuilder.addParentStack(WeatherActivity.class);
+			stackBuilder.addNextIntent(resultIntent);
+			PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
+					0, PendingIntent.FLAG_UPDATE_CURRENT);// 表示更新的PendingIntent
+			mRemoteViews.setOnClickPendingIntent(R.id.ly_notification,
+					resultPendingIntent);
+
+			NotificationCompat.Builder builder = new NotificationCompat.Builder(
+					this);
+			builder.setContent(mRemoteViews).setSmallIcon(R.drawable.noti);// 这个是和时间那一排的那个图标，必须得写
+			Notification notify = builder.build();
+			notify.flags = Notification.FLAG_ONGOING_EVENT;// 发起正在运行事件（活动中）
+			mNotificationManager.notify(0, notify);
+		} else {
+			mNotificationManager.cancel(0);
 		}
 	}
 

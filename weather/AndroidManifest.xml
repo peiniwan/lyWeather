@@ -40,6 +40,7 @@
     </uses-permission>
 
     <application
+        android:name=".activity.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
@@ -64,8 +65,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.WeatherActivity" />
-        <activity android:name=".activity.MenuActivity" />
+        <activity android:name=".activity.CityActivity" />
         <activity android:name=".activity.LifeActivity" />
+        <activity android:name=".activity.SettingActivity" />
 
         <service android:name="service.AutoUpdateService" >
         </service>
