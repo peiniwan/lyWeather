@@ -327,15 +327,13 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		line1.setVisibility(View.VISIBLE);
 		qitaday.setVisibility(View.VISIBLE);
 
-		boolean serviceSetting = prefs.getBoolean("service", false);
+		boolean serviceSetting = prefs.getBoolean("service", true);
 		if (serviceSetting == true) {
 			Intent intent = new Intent(this, AutoUpdateService.class);
 			intent.putExtra("currentCity", currentCity);
 			startService(intent);
 			System.out.println("开启服务了！");
 		}
-		Intent widgetIntent = new Intent("com.ly.weather.start");
-		sendBroadcast(widgetIntent);
 
 	}
 
@@ -416,7 +414,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	}
 
 	public void showNotification() {
-		if (prefs.getBoolean("notifiction", false) == true) {// 如果设置里是true才展示
+		if (prefs.getBoolean("notifiction", true) == true) {// 第一次进来没有，返回true，展示通知栏
 			String currentCity = prefs.getString("current_city", "");
 			mRemoteViews = new RemoteViews(getPackageName(),
 					R.layout.notification);// 填充通知栏布局

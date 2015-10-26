@@ -61,12 +61,12 @@ public class MyWidgetProvider extends AppWidgetProvider {
 			int[] appWidgetIds, Context context) {
 		Intent intent = new Intent(context, WeatherActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
-				intent, 0);
-		RemoteViews remoteViews = new RemoteViews(context.getPackageName(),
+				intent, PendingIntent.FLAG_CANCEL_CURRENT);// 写成这个就回到了activity
+		RemoteViews rv = new RemoteViews(context.getPackageName(),
 				R.layout.layout_widget);
-		remoteViews.setOnClickPendingIntent(R.id.ly_widget, pendingIntent);
+		rv.setOnClickPendingIntent(R.id.ly_widget, pendingIntent);
 		for (int i = 0; i < appWidgetIds.length; i++) {
-			appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
+			appWidgetManager.updateAppWidget(appWidgetIds[i], rv);
 		}
 	}
 
