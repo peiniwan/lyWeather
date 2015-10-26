@@ -15,6 +15,7 @@ public class SettingActivity extends BaseActivity {
 	private SettingItemView notifiction;// 是否开启通知栏
 	private SharedPreferences mPref;
 	private SettingItemView service;
+	private SettingItemView window;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +25,7 @@ public class SettingActivity extends BaseActivity {
 		mPref = PreferenceManager.getDefaultSharedPreferences(this);
 		notifiction = (SettingItemView) findViewById(R.id.notifiction);
 		service = (SettingItemView) findViewById(R.id.service);
+		window = (SettingItemView) findViewById(R.id.window);
 
 		boolean autoUpdate = mPref.getBoolean("notifiction", true);
 		// 再次进来就判断
@@ -70,6 +72,31 @@ public class SettingActivity extends BaseActivity {
 					service.setChecked(true);
 					// 更新sp
 					mPref.edit().putBoolean("service", true).commit();
+				}
+			}
+		});
+
+		boolean windowSetting = mPref.getBoolean("window", true);
+		// 再次进来就判断
+		if (windowSetting) {
+			window.setChecked(true);
+		} else {
+			window.setChecked(false);
+		}
+		window.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// 判断当前的勾选状态
+				if (window.isChecked()) {
+					// 设置不勾选
+					window.setChecked(false);
+					// 更新sp
+					mPref.edit().putBoolean("window", false).commit();
+				} else {
+					window.setChecked(true);
+					// 更新sp
+					mPref.edit().putBoolean("window", true).commit();
 				}
 			}
 		});

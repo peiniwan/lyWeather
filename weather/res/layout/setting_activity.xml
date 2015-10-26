@@ -38,4 +38,13 @@
         lyweather:title="后台更新设置" >
     </com.ly.weather.view.SettingItemView>
 
+    <com.ly.weather.view.SettingItemView
+        android:id="@+id/window"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        lyweather:desc_off="关闭悬浮窗"
+        lyweather:desc_on="开启悬浮窗"
+        lyweather:title="悬浮窗设置" >
+    </com.ly.weather.view.SettingItemView>
+
 </LinearLayout>

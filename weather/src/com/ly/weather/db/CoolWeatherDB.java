@@ -50,16 +50,16 @@ public class CoolWeatherDB {
 	public void saveAddCity(AddCity addCity) {
 		if (addCity != null) {
 			ContentValues values = new ContentValues();
-			Cursor cursor = db.query("AddCity", null, null, null, null, null,
-					null);
-			while (cursor.moveToNext()) {
-				cityName = cursor.getString(cursor.getColumnIndex("city_name"));
-				if (addCity.getCityName() != cityName) {
-					System.out.println("addCity.getCityName()"
-							+ addCity.getCityName() + "-----------" + cityName);
+//			Cursor cursor = db.query("AddCity", null, null, null, null, null,
+//					null);
+//			while (cursor.moveToNext()) {
+//				cityName = cursor.getString(cursor.getColumnIndex("city_name"));
+//				if (addCity.getCityName() != cityName) {
+//					System.out.println("addCity.getCityName()"
+//							+ addCity.getCityName() + "-----------" + cityName);
 					values.put("city_name", addCity.getCityName());
-				}
-			}
+//				}
+//			}
 			System.out.println("coll --cityName" + cityName);
 
 			db.insert("AddCity", null, values);

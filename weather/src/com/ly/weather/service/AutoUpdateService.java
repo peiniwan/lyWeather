@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 
 import com.ly.weather.activity.WeatherActivity;
 import com.ly.weather.receiver.AutoUpdateReceiver;
+import com.ly.weather.receiver.MyWidgetProvider;
 import com.ly.weather.util.HttpCallbackListener;
 import com.ly.weather.util.HttpUtil;
 import com.ly.weather.util.SDstore;
@@ -30,6 +31,7 @@ public class AutoUpdateService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		System.out.println("AutoUpdateService的onStartCommand执行了");
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -42,6 +44,13 @@ public class AutoUpdateService extends Service {
 		Intent i = new Intent(this, AutoUpdateReceiver.class);
 		PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
 		manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+		// 每8小时更新桌面小部件
+		Intent widgetIntent = new Intent("com.ly.weather.start");
+		PendingIntent widgetPi = PendingIntent.getBroadcast(this, 0,
+				widgetIntent, 0);
+		manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime,
+				widgetPi);
+
 		return super.onStartCommand(intent, flags, startId);
 	}
 

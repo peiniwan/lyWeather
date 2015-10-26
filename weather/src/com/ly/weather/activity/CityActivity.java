@@ -195,8 +195,10 @@ public class CityActivity extends BaseActivity implements OnClickListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
-//		tv_local.setText("当前位置(" + local_list.get(3) + local_list.get(2)
-//				+ local_list.get(1) + ")");
+		if (local_list.get(3) != null) {
+			tv_local.setText("当前位置(" + local_list.get(3) + local_list.get(2)
+					+ local_list.get(1) + ")");
+		}
 	}
 
 	@Override

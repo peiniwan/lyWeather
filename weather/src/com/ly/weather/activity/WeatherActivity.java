@@ -11,6 +11,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -43,6 +44,7 @@ import com.ly.weather.service.AutoUpdateService;
 import com.ly.weather.util.ActivityCollector;
 import com.ly.weather.util.HttpCallbackListener;
 import com.ly.weather.util.HttpUtil;
+import com.ly.weather.util.ImageLoderPic;
 import com.ly.weather.util.SDstore;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -128,6 +130,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		menu.setOnClickListener(this);
 		lifezhinan.setOnClickListener(this);
 		menu.setOnClickListener(this);
+		switchCity.setOnClickListener(this);
 		// 下拉刷新设置参数
 		srl.setOnRefreshListener(this);
 		srl.setColorScheme(android.R.color.holo_blue_bright,
@@ -170,9 +173,6 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.switch_city:
-			// Intent intent = new Intent(this, ChooseAreaActivity.class);
-			// intent.putExtra("from_weather_activity", true);
-			// startActivity(intent);
 			startActivity(new Intent(this, CityActivity.class));
 			finish();
 			break;
@@ -299,6 +299,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		}
 		showWeather();// 展示天气
 		showNotification();// 展示通知栏
+
 	}
 
 	/**
@@ -311,9 +312,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		}
 		today_data.setText(weatherData.date);
 		current_city.setText(weatherData.results.get(0).currentCity);
-		prefs.edit()
-				.putString("current_city",
-						weatherData.results.get(0).currentCity).commit();
+		prefsData();
 		String shishi = oneWeatherInfo.date;
 		String[] split = shishi.split("日");
 		publish_text.setText("同步完成" + split[1]);
@@ -335,6 +334,21 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			startService(intent);
 			System.out.println("开启服务了！");
 		}
+		Intent widgetIntent = new Intent("com.ly.weather.start");
+		sendBroadcast(widgetIntent);
+
+	}
+
+	private void prefsData() {
+		Editor edit = prefs.edit();
+		edit.putString("current_city", weatherData.results.get(0).currentCity)
+				.commit();
+		edit.putString("today_data", weatherData.date).commit();
+		edit.putString("wind", oneWeatherInfo.wind).commit();
+		edit.putString("tmp", oneWeatherInfo.temperature).commit();
+		edit.putString("weather_info", oneWeatherInfo.weather).commit();
+		edit.putString("dayUrl", oneWeatherInfo.dayPictureUrl).commit();
+		edit.putString("nigheUrl", oneWeatherInfo.nightPictureUrl).commit();
 	}
 
 	/**
@@ -343,7 +357,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	private void showPic(ImageView iv, String dayUrl, String nigheUrl) {
 		Date date = new Date();
 		currHours = date.getHours();
-		switchCity.setOnClickListener(this);
+
 		BitmapUtils bitmapUtils = new BitmapUtils(this);
 		if (currHours > 17 || currHours < 7) {
 			bitmapUtils.display(iv, nigheUrl);
@@ -406,52 +420,11 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			String currentCity = prefs.getString("current_city", "");
 			mRemoteViews = new RemoteViews(getPackageName(),
 					R.layout.notification);// 填充通知栏布局
-			// 使用ImageLoader加载图片,xutils不能获取bitmap对象
+
 			// 显示图片的配置
-			DisplayImageOptions options = new DisplayImageOptions.Builder()
-					.showImageOnLoading(R.drawable.loading)
-					// 不知道为什么不能显示默认图片
-					.showImageForEmptyUri(R.drawable.loading)
-					.showImageOnFail(R.drawable.loading).cacheInMemory(true)
-					.cacheOnDisk(true).bitmapConfig(Bitmap.Config.RGB_565)
-					.build();
-
-			if (currHours > 17 || currHours < 7) {
-				ImageLoader.getInstance().loadImage(
-						oneWeatherInfo.nightPictureUrl, options,
-						new SimpleImageLoadingListener() {// 下载成功此方法调用
-
-							@Override
-							public void onLoadingComplete(String imageUri,
-									View view, Bitmap loadedImage) {
-								super.onLoadingComplete(imageUri, view,
-										loadedImage);
-								mRemoteViews.setImageViewBitmap(
-										R.id.iv_notification, loadedImage);// 设置图片
-								System.out
-										.println(oneWeatherInfo.nightPictureUrl);
-							}
-
-						});
-
-			} else {
-				ImageLoader.getInstance().loadImage(
-						oneWeatherInfo.dayPictureUrl, options,
-						new SimpleImageLoadingListener() {
-							@Override
-							public void onLoadingComplete(String imageUri,
-									View view, Bitmap loadedImage) {
-								super.onLoadingComplete(imageUri, view,
-										loadedImage);
-								mRemoteViews.setImageViewBitmap(
-										R.id.iv_notification, loadedImage);
-								System.out.println(loadedImage.getHeight());
-								System.out
-										.println(oneWeatherInfo.dayPictureUrl);
-							}
-
-						});
-			}
+			ImageLoderPic.showPic(mRemoteViews, R.id.iv_notification,
+					oneWeatherInfo.nightPictureUrl,
+					oneWeatherInfo.dayPictureUrl);
 
 			mRemoteViews.setTextViewText(R.id.notification_city_name,
 					currentCity);
