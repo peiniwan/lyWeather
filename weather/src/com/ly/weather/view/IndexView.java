@@ -16,15 +16,13 @@ import com.ly.weather.R;
  */
 public class IndexView extends RelativeLayout {
 	private static final String NAMESPACE = "http://schemas.android.com/apk/res/com.ly.weather";
-
+	// 自定义属性
 	private String mTitle;
 	private String mZs;
 	private String mDes;
-
+	// 控件对象
 	private TextView tv_des;
-
 	private TextView tv_title;
-
 	private TextView tv_zs;
 
 	// 自定义控件都要实现这三个方法，在这三个方法中都去调用initView()初始化

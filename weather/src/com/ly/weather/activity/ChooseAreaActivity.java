@@ -22,6 +22,12 @@ import com.ly.weather.model.City;
 import com.ly.weather.model.Province;
 import com.ly.weather.util.Utility;
 
+/**
+ * 选择城市activity，软件一进来此activity
+ * 
+ * @author Administrator
+ * 
+ */
 public class ChooseAreaActivity extends BaseActivity {
 	public static final int LEVEL_PROVINCE = 0;
 	public static final int LEVEL_CITY = 1;
@@ -30,7 +36,9 @@ public class ChooseAreaActivity extends BaseActivity {
 	private ListView listView;
 	private ArrayAdapter<String> adapter;
 	private CoolWeatherDB coolWeatherDB;
-	private List<String> dataList = new ArrayList<String>();
+	private List<String> dataList = new ArrayList<String>();// 存放城市
+	private SharedPreferences prefs;
+	private AddCity addCity;// 添加的城市
 
 	/**
 	 * 省列表
@@ -45,29 +53,23 @@ public class ChooseAreaActivity extends BaseActivity {
 	 */
 	private Province selectedProvince;
 	/**
-	 * 选中的城市
-	 */
-	private City selectedCity;
-	/**
 	 * 当前选中的级别
 	 */
 	private int currentLevel;
 	/**
-	 * 是否从WeatherActivity中跳转过来。
+	 * 是否从CityActivity中跳转过来。
 	 */
-	private boolean isFromWeatherActivity;
-	private SharedPreferences prefs;
-	private AddCity addCity;
+	private boolean isFromCityActivity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		isFromWeatherActivity = getIntent().getBooleanExtra(
-				"from_weather_activity", false);
+		isFromCityActivity = getIntent().getBooleanExtra("from_city_activity",
+				false);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		// 已经选择了城市且不是从WeatherActivity跳转过来，才会直接跳转到WeatherActivity
-		if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
+		// 已经选择了城市且不是从CityActivity跳转过来，才会直接跳转到WeatherActivity，否则会一进来就又调到WeatherActivity
+		if (prefs.getBoolean("city_selected", false) && !isFromCityActivity) {
 			Intent intent = new Intent(this, WeatherActivity.class);
 			startActivity(intent);
 			finish();
@@ -87,27 +89,28 @@ public class ChooseAreaActivity extends BaseActivity {
 				android.R.layout.simple_list_item_1, dataList);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
+
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				if (currentLevel == LEVEL_PROVINCE) {
-					selectedProvince = provinceList.get(position);// 点0-北京
+					selectedProvince = provinceList.get(position);// 点0-北京-查询城市
 					queryCities();
 				} else if (currentLevel == LEVEL_CITY) {
 					String cityName = cityList.get(position).getCityName();
 					Intent intent = new Intent(ChooseAreaActivity.this,
-							WeatherActivity.class);
+							WeatherActivity.class);// 选择的城市名传递到WeatherActivity
 					intent.putExtra("cityName", cityName);
 
 					addCity.setCityName(cityName);
-					coolWeatherDB.saveAddCity(addCity);
+					coolWeatherDB.saveAddCity(addCity);// 保存到数据库
 					System.out.println("ChooseAreaActivity" + cityName);
 					startActivity(intent);
 					finish();
 				}
 			}
 		});
-		queryProvinces(); // 加载省级数据
+		queryProvinces(); // 默认加载省级数据
 	}
 
 	/**
@@ -116,7 +119,7 @@ public class ChooseAreaActivity extends BaseActivity {
 	private void queryProvinces() {
 		provinceList = coolWeatherDB.loadProvinces();
 		if (provinceList.size() > 0) {
-			dataList.clear();
+			dataList.clear();// notifyDataSetChanged前先clear
 			for (Province province : provinceList) {
 				dataList.add(province.getProvinceName());
 			}
@@ -125,7 +128,7 @@ public class ChooseAreaActivity extends BaseActivity {
 			titleText.setText("中国");
 			currentLevel = LEVEL_PROVINCE;
 		} else {
-			Utility.json(this, coolWeatherDB);
+			Utility.json(this, coolWeatherDB);// 软件一进来先解析json（存放的城市信息）
 			queryProvinces();
 		}
 	}
@@ -157,14 +160,7 @@ public class ChooseAreaActivity extends BaseActivity {
 	public void onBackPressed() {
 		if (currentLevel == LEVEL_CITY) {
 			queryProvinces();
-			Intent intent = new Intent(this, CityActivity.class);
-			startActivity(intent);
 		} else {
-			// 如果是从 WeatherActivity跳转过来的，则应该重新回到 WeatherActivity。
-			if (isFromWeatherActivity) {
-				Intent intent = new Intent(this, WeatherActivity.class);
-				startActivity(intent);
-			}
 			finish();
 		}
 	}

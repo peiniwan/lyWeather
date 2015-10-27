@@ -5,7 +5,11 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.ly.weather.util.ActivityCollector;
-
+/**
+ * activity的基类
+ * @author Administrator
+ *
+ */
 public class BaseActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

@@ -34,19 +34,20 @@ public class LifeActivity extends BaseActivity {
 		IndexView ziwaixian_iv = (IndexView) findViewById(R.id.ziwaixian);
 
 		ArrayList<IndexInfo> index = WeatherActivity.index;
-
-		chuangyi_iv.setTitle(index.get(0).title, index.get(0).des,
-				index.get(0).tipt);
-		ciche_iv.setTitle(index.get(1).title, index.get(1).des,
-				index.get(1).tipt);
-		lvyou_iv.setTitle(index.get(2).title, index.get(2).des,
-				index.get(2).tipt);
-		ganmo_iv.setTitle(index.get(3).title, index.get(3).des,
-				index.get(3).tipt);
-		sport_iv.setTitle(index.get(4).title, index.get(4).des,
-				index.get(4).tipt);
-		ziwaixian_iv.setTitle(index.get(5).title, index.get(5).des,
-				index.get(5).tipt);
+		if (index != null) {
+			chuangyi_iv.setTitle(index.get(0).title, index.get(0).des,
+					index.get(0).tipt);
+			ciche_iv.setTitle(index.get(1).title, index.get(1).des,
+					index.get(1).tipt);
+			lvyou_iv.setTitle(index.get(2).title, index.get(2).des,
+					index.get(2).tipt);
+			ganmo_iv.setTitle(index.get(3).title, index.get(3).des,
+					index.get(3).tipt);
+			sport_iv.setTitle(index.get(4).title, index.get(4).des,
+					index.get(4).tipt);
+			ziwaixian_iv.setTitle(index.get(5).title, index.get(5).des,
+					index.get(5).tipt);
+		}
 	}
 
 	@Override
@@ -54,5 +55,6 @@ public class LifeActivity extends BaseActivity {
 		super.onBackPressed();
 		Intent intent = new Intent(this, WeatherActivity.class);
 		startActivity(intent);
+		finish();
 	}
 }

@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -46,9 +45,6 @@ import com.ly.weather.util.HttpCallbackListener;
 import com.ly.weather.util.HttpUtil;
 import com.ly.weather.util.ImageLoderPic;
 import com.ly.weather.util.SDstore;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 public class WeatherActivity extends BaseActivity implements OnClickListener,
 		OnRefreshListener {
@@ -98,8 +94,6 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	private SwipeRefreshLayout srl;// 下拉刷新控件
 	private NotificationManager mNotificationManager;
 	private RemoteViews mRemoteViews;
-
-	private int currHours;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -183,6 +177,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			break;
 		case R.id.lifezhinan:
 			startActivity(new Intent(this, LifeActivity.class));
+			break;
 		case R.id.menu:
 			startActivity(new Intent(this, SettingActivity.class));
 			finish();
@@ -334,7 +329,8 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			startService(intent);
 			System.out.println("开启服务了！");
 		}
-
+		Intent widgetIntent = new Intent("com.ly.weather.start");
+		sendBroadcast(widgetIntent);
 	}
 
 	private void prefsData() {
@@ -354,7 +350,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	 */
 	private void showPic(ImageView iv, String dayUrl, String nigheUrl) {
 		Date date = new Date();
-		currHours = date.getHours();
+		int currHours = date.getHours();
 
 		BitmapUtils bitmapUtils = new BitmapUtils(this);
 		if (currHours > 17 || currHours < 7) {
@@ -405,7 +401,8 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			String currentCity = prefs.getString("current_city", "");// 跟新的时候应该重新获取保存的城市名
 			publish_text.setText("同步中...");
 			queryFromServer(currentCity);
-			if (weatherData.status.equals("success")) {
+
+			if (weatherData != null && weatherData.status.equals("success")) {
 				srl.setRefreshing(false);
 			}
 		} else {
@@ -419,7 +416,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			mRemoteViews = new RemoteViews(getPackageName(),
 					R.layout.notification);// 填充通知栏布局
 
-			// 显示图片的配置
+			// 显示图片
 			ImageLoderPic.showPic(mRemoteViews, R.id.iv_notification,
 					oneWeatherInfo.nightPictureUrl,
 					oneWeatherInfo.dayPictureUrl);

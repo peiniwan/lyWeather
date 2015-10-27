@@ -11,11 +11,16 @@ import android.view.Window;
 import com.ly.weather.R;
 import com.ly.weather.view.SettingItemView;
 
+/**
+ * 设置界面
+ * 
+ * @author Administrator
+ * 
+ */
 public class SettingActivity extends BaseActivity {
-	private SettingItemView notifiction;// 是否开启通知栏
+	private SettingItemView notifiction;
 	private SharedPreferences mPref;
 	private SettingItemView service;
-	private SettingItemView window;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,31 +30,15 @@ public class SettingActivity extends BaseActivity {
 		mPref = PreferenceManager.getDefaultSharedPreferences(this);
 		notifiction = (SettingItemView) findViewById(R.id.notifiction);
 		service = (SettingItemView) findViewById(R.id.service);
+		initUpdate();
+		initService();
 
-		boolean autoUpdate = mPref.getBoolean("notifiction", true);
-		// 再次进来就判断
-		if (autoUpdate) {
-			notifiction.setChecked(true);
-		} else {
-			notifiction.setChecked(false);
-		}
-		notifiction.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// 判断当前的勾选状态
-				if (notifiction.isChecked()) {
-					// 设置不勾选
-					notifiction.setChecked(false);
-					// 更新sp
-					mPref.edit().putBoolean("notifiction", false).commit();
-				} else {
-					notifiction.setChecked(true);
-					// 更新sp
-					mPref.edit().putBoolean("notifiction", true).commit();
-				}
-			}
-		});
+	}
 
+	/**
+	 * 是否开启服务
+	 */
+	private void initService() {
 		boolean serviceSetting = mPref.getBoolean("service", true);
 		// 再次进来就判断
 		if (serviceSetting) {
@@ -74,7 +63,35 @@ public class SettingActivity extends BaseActivity {
 				}
 			}
 		});
+	}
 
+	/**
+	 * 是否开启通知栏
+	 */
+	private void initUpdate() {
+		boolean autoUpdate = mPref.getBoolean("notifiction", true);
+		// 再次进来就判断
+		if (autoUpdate) {
+			notifiction.setChecked(true);
+		} else {
+			notifiction.setChecked(false);
+		}
+		notifiction.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// 判断当前的勾选状态
+				if (notifiction.isChecked()) {
+					// 设置不勾选
+					notifiction.setChecked(false);
+					// 更新sp
+					mPref.edit().putBoolean("notifiction", false).commit();
+				} else {
+					notifiction.setChecked(true);
+					// 更新sp
+					mPref.edit().putBoolean("notifiction", true).commit();
+				}
+			}
+		});
 	}
 
 	@Override

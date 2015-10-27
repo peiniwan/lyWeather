@@ -21,7 +21,8 @@ public class CoolWeatherOpenHelper extends SQLiteOpenHelper {
 	 * 创建选中城市的表
 	 */
 	public static final String CREATE_ADDCITY = "create table AddCity("
-			+ "id integer primary key autoincrement," + " city_name text)";
+			+ "id integer primary key autoincrement,"
+			+ " city_name char(10) UNIQUE )";
 
 	public CoolWeatherOpenHelper(Context context, String name,
 			CursorFactory factory, int version) {
