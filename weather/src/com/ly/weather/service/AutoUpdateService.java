@@ -11,7 +11,6 @@ import android.preference.PreferenceManager;
 
 import com.ly.weather.activity.WeatherActivity;
 import com.ly.weather.receiver.AutoUpdateReceiver;
-import com.ly.weather.receiver.MyWidgetProvider;
 import com.ly.weather.util.HttpCallbackListener;
 import com.ly.weather.util.HttpUtil;
 import com.ly.weather.util.SDstore;

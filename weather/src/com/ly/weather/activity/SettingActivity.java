@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.TextView;
 
 import com.ly.weather.R;
 import com.ly.weather.view.SettingItemView;
@@ -30,6 +31,16 @@ public class SettingActivity extends BaseActivity {
 		mPref = PreferenceManager.getDefaultSharedPreferences(this);
 		notifiction = (SettingItemView) findViewById(R.id.notifiction);
 		service = (SettingItemView) findViewById(R.id.service);
+		TextView about = (TextView) findViewById(R.id.about);
+		about.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(SettingActivity.this,
+						AboutActivity.class);
+				startActivity(intent);
+			}
+		});
 		initUpdate();
 		initService();
 

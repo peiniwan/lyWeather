@@ -38,4 +38,15 @@
         lyweather:title="后台更新设置" >
     </com.ly.weather.view.SettingItemView>
 
+    <TextView
+        android:id="@+id/about"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:clickable="true"
+        android:text="关于作者"
+        android:textColor="@android:color/black"
+        android:textSize="22sp" />
+
 </LinearLayout>

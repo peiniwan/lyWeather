@@ -17,13 +17,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
 import com.ly.weather.R;
 import com.ly.weather.db.CoolWeatherDB;
 import com.ly.weather.model.AddCity;
@@ -36,17 +30,12 @@ import com.ly.weather.model.AddCity;
  */
 public class CityActivity extends BaseActivity implements OnClickListener {
 	private Button bt_add;// 添加城市
-	private TextView tv_local;// 定位城市
 	private ListView lv;
 	private SharedPreferences prefs;
 	private ArrayList<String> mArrayList = new ArrayList<String>();// 保存添加的城市
 	private ArrayList<String> cities;// adapter的数据
 	private CoolWeatherDB weatherDB;
 	private ArrayAdapter<String> adapter;
-
-	private LocationClient mLocationClient = null;
-	private BDLocationListener myListener = new MyLocationListener();
-	private ArrayList<String> local_list;// 存放定位出来的信息
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +53,6 @@ public class CityActivity extends BaseActivity implements OnClickListener {
 		lv.setAdapter(adapter);
 
 		bt_add.setOnClickListener(this);
-		tv_local.setOnClickListener(this);
 
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
@@ -86,11 +74,6 @@ public class CityActivity extends BaseActivity implements OnClickListener {
 				return true;// 返回true点击事件就不会触发了
 			}
 		});
-
-		mLocationClient = new LocationClient(getApplicationContext()); // 声明LocationClient类
-		mLocationClient.registerLocationListener(myListener); // 注册监听函数
-		setLocationOption();
-		mLocationClient.start();// 开始定位
 	}
 
 	/**
@@ -130,7 +113,6 @@ public class CityActivity extends BaseActivity implements OnClickListener {
 	 */
 	private void initView() {
 		bt_add = (Button) findViewById(R.id.bt_add);
-		tv_local = (TextView) findViewById(R.id.tv_local);
 		lv = (ListView) findViewById(R.id.lv);
 	}
 
@@ -161,66 +143,10 @@ public class CityActivity extends BaseActivity implements OnClickListener {
 			intent.putExtra("from_city_activity", true);
 			startActivity(intent);
 			break;
-		case R.id.tv_local:
-			// 定位城市
-			if (mLocationClient != null && mLocationClient.isStarted()) {
-				mLocationClient.requestLocation();
-				Intent intent_local = new Intent(this, WeatherActivity.class);
-				String time = local_list.get(0);// 时间和城市名保存起来
-				String cityName = local_list.get(1);
-				System.out.println(time + cityName);
-				intent_local.putExtra("cityName", cityName);
-				intent_local.putExtra("time", time);
-				startActivity(intent_local);
-			}
-			break;
 
 		default:
 			break;
 		}
-	}
-
-	/**
-	 * 设置相关参数
-	 */
-	private void setLocationOption() {
-		LocationClientOption option = new LocationClientOption();
-		option.setOpenGps(true);
-		option.setPriority(LocationClientOption.GpsFirst);
-		option.setIsNeedAddress(true);// 返回的定位结果包含地址信息
-		option.setAddrType("all");// 返回的定位结果包含地址信息
-		option.setCoorType("bd09ll");// 返回的定位结果是百度经纬度,默认值gcj02
-		option.disableCache(true);// 禁止启用缓存定位
-		mLocationClient.setLocOption(option);
-	}
-
-	public class MyLocationListener implements BDLocationListener {
-
-		@Override
-		public void onReceiveLocation(BDLocation arg0) {
-			if (arg0 == null)
-				return;
-			local_list = new ArrayList<String>();
-			local_list.add(arg0.getTime());// 时间
-			local_list.add(arg0.getDistrict());// 区，县
-			local_list.add(arg0.getCity());// 城市
-			local_list.add(arg0.getProvince());// 省
-		}
-	}
-
-	// @Override
-	// protected void onRestart() {
-	// super.onRestart();
-	// if (local_list.get(3) != null) {
-	// tv_local.setText("当前位置(" + local_list.get(3) + local_list.get(2)
-	// + local_list.get(1) + ")");
-	// }
-	// }
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		mLocationClient.stop();// 停止定位
 	}
 
 	@Override

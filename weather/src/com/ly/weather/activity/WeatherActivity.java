@@ -32,7 +32,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 import com.google.gson.Gson;
 import com.lidroid.xutils.BitmapUtils;
 import com.ly.weather.R;
@@ -53,7 +58,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	 * 上面的按钮
 	 */
 	private Button switchCity;// 切换城市按钮
-	private Button refreshWeather;// 更新天气按钮
+	private Button dingwei;// 更新天气按钮
 	private Button menu;// 菜单
 
 	/**
@@ -95,6 +100,10 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	private NotificationManager mNotificationManager;
 	private RemoteViews mRemoteViews;
 
+	private LocationClient mLocationClient = null;
+	private BDLocationListener myListener = new MyLocationListener();
+	private ArrayList<String> local_list;// 存放定位出来的信息
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -120,7 +129,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			}
 		}
 
-		refreshWeather.setOnClickListener(this);
+		dingwei.setOnClickListener(this);
 		menu.setOnClickListener(this);
 		lifezhinan.setOnClickListener(this);
 		menu.setOnClickListener(this);
@@ -131,6 +140,12 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 				android.R.color.holo_green_light,
 				android.R.color.holo_red_light,
 				android.R.color.holo_orange_light);
+
+		// 定位相关
+		mLocationClient = new LocationClient(getApplicationContext()); // 声明LocationClient类
+		mLocationClient.registerLocationListener(myListener); // 注册监听函数
+		setLocationOption();
+		mLocationClient.start();// 开始定位
 	}
 
 	/**
@@ -144,7 +159,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 
 		// 上面布局
 		switchCity = (Button) findViewById(R.id.switch_city);
-		refreshWeather = (Button) findViewById(R.id.refresh_weather);
+		dingwei = (Button) findViewById(R.id.dingwei);
 		menu = (Button) findViewById(R.id.menu);
 		publish_text = (TextView) findViewById(R.id.publish_text);
 		lifezhinan = (Button) findViewById(R.id.lifezhinan);
@@ -170,10 +185,15 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			startActivity(new Intent(this, CityActivity.class));
 			finish();
 			break;
-		case R.id.refresh_weather:
-			publish_text.setText("同步中...");
-			String currentCity = prefs.getString("current_city", "");// 跟新的时候应该重新获取保存的城市名
-			queryFromServer(currentCity);
+		case R.id.dingwei:
+			if (mLocationClient != null && mLocationClient.isStarted()) {
+				mLocationClient.requestLocation();
+				String cityName = local_list.get(1);
+				publish_text.setText("定位中...");
+				queryFromServer(cityName);
+			} else {
+				Toast.makeText(this, "请确保网络通畅", Toast.LENGTH_SHORT).show();
+			}
 			break;
 		case R.id.lifezhinan:
 			startActivity(new Intent(this, LifeActivity.class));
@@ -294,7 +314,6 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		}
 		showWeather();// 展示天气
 		showNotification();// 展示通知栏
-
 	}
 
 	/**
@@ -358,6 +377,42 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		} else {
 			bitmapUtils.display(iv, dayUrl);
 		}
+	}
+
+	/**
+	 * 设置相关参数
+	 */
+	private void setLocationOption() {
+		LocationClientOption option = new LocationClientOption();
+		option.setOpenGps(true);
+		option.setPriority(LocationClientOption.GpsFirst);
+		option.setIsNeedAddress(true);// 返回的定位结果包含地址信息
+		option.setAddrType("all");// 返回的定位结果包含地址信息
+		option.setCoorType("bd09ll");// 返回的定位结果是百度经纬度,默认值gcj02
+		option.disableCache(true);// 禁止启用缓存定位
+		option.setTimeOut(5000);
+		mLocationClient.setLocOption(option);
+	}
+
+	public class MyLocationListener implements BDLocationListener {
+
+		@Override
+		public void onReceiveLocation(BDLocation arg0) {
+			if (arg0 == null) {
+				return;
+			}
+			local_list = new ArrayList<String>();
+			local_list.add(arg0.getTime());// 时间
+			local_list.add(arg0.getDistrict());// 区，县
+			local_list.add(arg0.getCity());// 城市
+			local_list.add(arg0.getProvince());// 省
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		mLocationClient.stop();// 停止定位
 	}
 
 	/**
