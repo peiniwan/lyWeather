@@ -45,7 +45,7 @@
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
         android:clickable="true"
-        android:text="关于作者"
+        android:text="更多"
         android:textColor="@android:color/black"
         android:textSize="22sp" />
 
