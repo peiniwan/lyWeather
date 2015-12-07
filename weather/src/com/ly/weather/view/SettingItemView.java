@@ -16,7 +16,7 @@ import com.ly.weather.R;
  * 
  */
 public class SettingItemView extends RelativeLayout {
-	private static final String NAMESPACE = "http://schemas.android.com/apk/res/com.ly.weather";
+	private static final String NAMESPACE = "http://schemas.android.com/apk/res-auto";
 	private TextView tvTitle;
 	private TextView tvDesc;
 	private CheckBox cbStatus;

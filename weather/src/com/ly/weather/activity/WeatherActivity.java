@@ -199,7 +199,8 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			finish();
 			break;
 		case R.id.dingwei:
-			if (mLocationClient != null && mLocationClient.isStarted()) {
+			if (mLocationClient != null && mLocationClient.isStarted()
+					&& local_list != null) {
 				mLocationClient.requestLocation();
 				if (local_list.get(1) != null) {
 					String cityName = local_list.get(1);
