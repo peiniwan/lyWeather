@@ -51,6 +51,12 @@ import com.ly.weather.util.HttpUtil;
 import com.ly.weather.util.ImageLoderPic;
 import com.ly.weather.util.SDstore;
 
+/**
+ * 主页面，显示天气
+ * 
+ * @author Administrator
+ * 
+ */
 public class WeatherActivity extends BaseActivity implements OnClickListener,
 		OnRefreshListener {
 
@@ -99,7 +105,9 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	private SwipeRefreshLayout srl;// 下拉刷新控件
 	private NotificationManager mNotificationManager;
 	private RemoteViews mRemoteViews;
-
+	/**
+	 * 定位相关
+	 */
 	private LocationClient mLocationClient = null;
 	private BDLocationListener myListener = new MyLocationListener();
 	private ArrayList<String> local_list;// 存放定位出来的信息
@@ -109,10 +117,15 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_activity);
+
 		initView();// 初始化控件
+
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		// 获取传递过来的地址信息
 		cityName = getIntent().getStringExtra("cityName");
+
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
 		if (!TextUtils.isEmpty(cityName)) {
 			// 有市级代号时就去查询天气
 			publish_text.setText("同步中...");
@@ -120,11 +133,10 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			line1.setVisibility(View.INVISIBLE);
 			qitaday.setVisibility(View.INVISIBLE);
 			queryFromServer(cityName);
-		} else {// 没有就保存保存的json数据去展示界面
+		} else {// 没有就读取保存的json数据去展示界面
 			currentCity = prefs.getString("current_city", "");// 获取保存的城市名,有可能一进去没网就没有保存城市，进去空指针
 			if (currentCity != null) {
 				String result = SDstore.read2sd(setAddress(currentCity));// 获取保存的json数据
-				System.out.println("result" + result);
 				parseData(result);// 解析并展示界面
 			}
 		}
@@ -144,7 +156,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		// 定位相关
 		mLocationClient = new LocationClient(getApplicationContext()); // 声明LocationClient类
 		mLocationClient.registerLocationListener(myListener); // 注册监听函数
-		setLocationOption();
+		setLocationOption();// 设置定位参数
 		mLocationClient.start();// 开始定位
 	}
 
@@ -164,6 +176,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		publish_text = (TextView) findViewById(R.id.publish_text);
 		lifezhinan = (Button) findViewById(R.id.lifezhinan);
 		pm25 = (Button) findViewById(R.id.pm25);
+
 		// 其他天
 		qitaday = (GridView) findViewById(R.id.qitaday);
 		today_data = (TextView) findViewById(R.id.today_data);
@@ -188,11 +201,13 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		case R.id.dingwei:
 			if (mLocationClient != null && mLocationClient.isStarted()) {
 				mLocationClient.requestLocation();
-				String cityName = local_list.get(1);
-				publish_text.setText("定位中...");
-				queryFromServer(cityName);
-			} else {
-				Toast.makeText(this, "请确保网络通畅", Toast.LENGTH_SHORT).show();
+				if (local_list.get(1) != null) {
+					String cityName = local_list.get(1);
+					publish_text.setText("定位中...");
+					queryFromServer(cityName);
+				} else {
+					Toast.makeText(this, "请确保网络通畅", Toast.LENGTH_SHORT).show();
+				}
 			}
 			break;
 		case R.id.lifezhinan:
@@ -206,6 +221,12 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		}
 	}
 
+	/**
+	 * GridView其他天的适配器
+	 * 
+	 * @author Administrator
+	 * 
+	 */
 	class WheatherAdapter extends BaseAdapter {
 
 		@Override
@@ -233,6 +254,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			qita_weather_info = (TextView) view.findViewById(R.id.weather_info);
 			qita_tmp = (TextView) view.findViewById(R.id.tmp);
 			qita_date = (TextView) view.findViewById(R.id.date);
+
 			qita_weather_info.setText(weatherInfo.weather);
 			qita_tmp.setText(weatherInfo.temperature);
 			qita_date.setText(weatherInfo.date);
@@ -257,6 +279,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 				+ cityNameU8
 				+ "&output=json&ak=vZ8GucwXI62RHVG2lPPFC4Gs"
 				+ "&mcode=51:18:C7:9F:D3:9D:6E:85:F8:13:55:B2:18:7F:2E:C7:16:63:E7:40;com.ly.weather ";
+		System.out.println("address--------" + address);
 		return address;
 
 	}
@@ -304,16 +327,20 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		prefs.edit().putBoolean("city_selected", true).commit();
 		Gson gson = new Gson();
 		weatherData = gson.fromJson(result, WeatherData.class);
-		System.out.println("parseData-----------weatherData" + weatherData);
-		index = weatherData.results.get(0).index;
-		weatherList = weatherData.results.get(0).weather_data;
-		oneWeatherInfo = weatherData.results.get(0).weather_data.get(0);
-		qitaList = new ArrayList<WeatherInfo>();
-		for (int i = 1; i < weatherList.size(); i++) {
-			qitaList.add(weatherList.get(i));
+
+		if (weatherData.status.equals("success")) {
+			index = weatherData.results.get(0).index;
+			weatherList = weatherData.results.get(0).weather_data;
+			oneWeatherInfo = weatherData.results.get(0).weather_data.get(0);
+
+			qitaList = new ArrayList<WeatherInfo>();
+			for (int i = 1; i < weatherList.size(); i++) {
+				qitaList.add(weatherList.get(i));
+			}
+			showWeather();// 展示天气
+			showNotification();// 展示通知栏
 		}
-		showWeather();// 展示天气
-		showNotification();// 展示通知栏
+
 	}
 
 	/**
@@ -326,14 +353,24 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		}
 		today_data.setText(weatherData.date);
 		current_city.setText(weatherData.results.get(0).currentCity);
-		prefsData();
+
+		prefsData();// 保存数据，再次进来直接展示
+
 		String shishi = oneWeatherInfo.date;
 		String[] split = shishi.split("日");
+		System.out.println("split[1]--------" + split[1]);
 		publish_text.setText("同步完成" + split[1]);
+
 		weather_info.setText(oneWeatherInfo.weather);
 		wind.setText(oneWeatherInfo.wind);
 		tmp.setText(oneWeatherInfo.temperature);
-		pm25.setText("PM2.5指数:" + weatherData.results.get(0).pm25);
+		// pm2.5有可能返回来
+		if (weatherData.results.get(0).pm25.equals("")) {
+			pm25.setVisibility(View.INVISIBLE);
+		} else {
+			pm25.setText("PM2.5指数:" + weatherData.results.get(0).pm25);
+		}
+		// 展示天气图片
 		showPic(curr_pic, oneWeatherInfo.dayPictureUrl,
 				oneWeatherInfo.nightPictureUrl);
 
@@ -352,16 +389,19 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		sendBroadcast(widgetIntent);
 	}
 
+	/**
+	 * 保存天气数据
+	 */
 	private void prefsData() {
 		Editor edit = prefs.edit();
-		edit.putString("current_city", weatherData.results.get(0).currentCity)
-				.commit();
-		edit.putString("today_data", weatherData.date).commit();
-		edit.putString("wind", oneWeatherInfo.wind).commit();
-		edit.putString("tmp", oneWeatherInfo.temperature).commit();
-		edit.putString("weather_info", oneWeatherInfo.weather).commit();
-		edit.putString("dayUrl", oneWeatherInfo.dayPictureUrl).commit();
-		edit.putString("nigheUrl", oneWeatherInfo.nightPictureUrl).commit();
+		edit.putString("current_city", weatherData.results.get(0).currentCity);
+		edit.putString("today_data", weatherData.date);
+		edit.putString("wind", oneWeatherInfo.wind);
+		edit.putString("tmp", oneWeatherInfo.temperature);
+		edit.putString("weather_info", oneWeatherInfo.weather);
+		edit.putString("dayUrl", oneWeatherInfo.dayPictureUrl);
+		edit.putString("nigheUrl", oneWeatherInfo.nightPictureUrl);
+		edit.commit();
 	}
 
 	/**
@@ -380,7 +420,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	}
 
 	/**
-	 * 设置相关参数
+	 * 设置定位相关参数
 	 */
 	private void setLocationOption() {
 		LocationClientOption option = new LocationClientOption();
@@ -394,6 +434,12 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		mLocationClient.setLocOption(option);
 	}
 
+	/**
+	 * 定位监听
+	 * 
+	 * @author Administrator
+	 * 
+	 */
 	public class MyLocationListener implements BDLocationListener {
 
 		@Override
@@ -453,7 +499,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 	public void onRefresh() {
 		boolean networkAvailable = checkNetworkAvailable(this);
 		if (networkAvailable == true) {
-			String currentCity = prefs.getString("current_city", "");// 跟新的时候应该重新获取保存的城市名
+			String currentCity = prefs.getString("current_city", "");// 更新的时候应该重新获取保存的城市名
 			publish_text.setText("同步中...");
 			queryFromServer(currentCity);
 
@@ -465,6 +511,9 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		}
 	}
 
+	/**
+	 * 展示通知栏
+	 */
 	public void showNotification() {
 		if (prefs.getBoolean("notifiction", true) == true) {// 第一次进来没有，返回true，展示通知栏
 			String currentCity = prefs.getString("current_city", "");

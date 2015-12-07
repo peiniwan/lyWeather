@@ -107,7 +107,6 @@
                         android:layout_marginTop="5dp"
                         android:background="@null"
                         android:gravity="center"
-                        android:text="PM25"
                         android:textColor="#FFF"
                         android:textSize="18sp" />
                 </RelativeLayout>

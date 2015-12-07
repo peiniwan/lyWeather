@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 
 import com.ly.weather.R;
@@ -37,16 +38,29 @@ public class LifeActivity extends BaseActivity {
 		if (index != null) {
 			chuangyi_iv.setTitle(index.get(0).title, index.get(0).des,
 					index.get(0).tipt);
-			ciche_iv.setTitle(index.get(1).title, index.get(1).des,
-					index.get(1).tipt);
-			lvyou_iv.setTitle(index.get(2).title, index.get(2).des,
-					index.get(2).tipt);
-			ganmo_iv.setTitle(index.get(3).title, index.get(3).des,
-					index.get(3).tipt);
-			sport_iv.setTitle(index.get(4).title, index.get(4).des,
-					index.get(4).tipt);
-			ziwaixian_iv.setTitle(index.get(5).title, index.get(5).des,
-					index.get(5).tipt);
+			if (index.get(1).title.equals("洗车")) {
+				ciche_iv.setTitle(index.get(1).title, index.get(1).des,
+						index.get(1).tipt);
+				lvyou_iv.setTitle(index.get(2).title, index.get(2).des,
+						index.get(2).tipt);
+				ganmo_iv.setTitle(index.get(3).title, index.get(3).des,
+						index.get(3).tipt);
+				sport_iv.setTitle(index.get(4).title, index.get(4).des,
+						index.get(4).tipt);
+				ziwaixian_iv.setTitle(index.get(5).title, index.get(5).des,
+						index.get(5).tipt);
+			} else {
+				ciche_iv.setVisibility(View.GONE);
+				lvyou_iv.setTitle(index.get(1).title, index.get(1).des,
+						index.get(1).tipt);
+				ganmo_iv.setTitle(index.get(2).title, index.get(2).des,
+						index.get(2).tipt);
+				sport_iv.setTitle(index.get(3).title, index.get(3).des,
+						index.get(3).tipt);
+				ziwaixian_iv.setTitle(index.get(4).title, index.get(4).des,
+						index.get(4).tipt);
+			}
+
 		}
 	}
 

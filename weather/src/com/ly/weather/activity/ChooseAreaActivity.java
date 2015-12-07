@@ -104,7 +104,6 @@ public class ChooseAreaActivity extends BaseActivity {
 
 					addCity.setCityName(cityName);
 					coolWeatherDB.saveAddCity(addCity);// 保存到数据库
-					System.out.println("ChooseAreaActivity" + cityName);
 					startActivity(intent);
 					finish();
 				}
@@ -138,19 +137,14 @@ public class ChooseAreaActivity extends BaseActivity {
 	 */
 	private void queryCities() {
 		cityList = coolWeatherDB.loadCities(selectedProvince.getId() - 1);// 点0-北京-数据库里是1，所以-1
-		if (cityList.size() > 0) {
-			dataList.clear();
-			for (City city : cityList) {
-				dataList.add(city.getCityName());
-			}
-			adapter.notifyDataSetChanged();
-			listView.setSelection(0);
-			titleText.setText(selectedProvince.getProvinceName());
-			currentLevel = LEVEL_CITY;
-		} else {
-			Utility.json(this, coolWeatherDB);
-			queryCities();// 第一次进来开始解析json数据，插入数据库。第二进来直接从数据库获取
+		dataList.clear();
+		for (City city : cityList) {
+			dataList.add(city.getCityName());
 		}
+		adapter.notifyDataSetChanged();
+		listView.setSelection(0);
+		titleText.setText(selectedProvince.getProvinceName());
+		currentLevel = LEVEL_CITY;
 	}
 
 	/**

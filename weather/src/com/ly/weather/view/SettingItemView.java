@@ -9,6 +9,12 @@ import android.widget.TextView;
 
 import com.ly.weather.R;
 
+/**
+ * 设置选项
+ * 
+ * @author Administrator
+ * 
+ */
 public class SettingItemView extends RelativeLayout {
 	private static final String NAMESPACE = "http://schemas.android.com/apk/res/com.ly.weather";
 	private TextView tvTitle;

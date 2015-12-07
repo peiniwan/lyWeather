@@ -5,10 +5,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 /**
  * 网络下载公共类
+ * 
  * @author Administrator
- *
+ * 
  */
 public class HttpUtil {
 	public static void sendHttpRequest(final String address,
@@ -21,8 +23,8 @@ public class HttpUtil {
 					URL url = new URL(address);
 					connection = (HttpURLConnection) url.openConnection();
 					connection.setRequestMethod("GET");
-					connection.setConnectTimeout(8000);
-					connection.setReadTimeout(8000);
+					connection.setConnectTimeout(10000);
+					connection.setReadTimeout(10000);
 					InputStream in = connection.getInputStream();
 					BufferedReader reader = new BufferedReader(
 							new InputStreamReader(in));
@@ -34,7 +36,7 @@ public class HttpUtil {
 					if (listener != null) {
 						// 回调onFinish()方法
 						listener.onFinish(response.toString());
-						
+
 					}
 				} catch (Exception e) {
 					if (listener != null) {
