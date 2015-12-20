@@ -61,7 +61,7 @@
                         android:layout_alignParentLeft="true"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="10dp"
-                        android:text="今天日期"
+                     
                         android:textColor="#FFF"
                         android:textSize="18sp" />
 

@@ -128,7 +128,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 
 		if (!TextUtils.isEmpty(cityName)) {
 			// 有市级代号时就去查询天气
-			publish_text.setText("同步中...");
+			today_data.setText("同步中...");
 			weatherInfoLayout.setVisibility(View.INVISIBLE);
 			line1.setVisibility(View.INVISIBLE);
 			qitaday.setVisibility(View.INVISIBLE);
@@ -204,7 +204,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 				mLocationClient.requestLocation();
 				if (local_list.get(1) != null) {
 					String cityName = local_list.get(1);
-					publish_text.setText("定位中...");
+					today_data.setText("定位中...");
 					queryFromServer(cityName);
 				} else {
 					Toast.makeText(this, "请确保网络通畅", Toast.LENGTH_SHORT).show();
@@ -312,7 +312,7 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						publish_text.setText("同步失败");
+						today_data.setText("同步失败");
 					}
 				});
 			}
@@ -352,20 +352,19 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 			WheatherAdapter wheatherAdapter = new WheatherAdapter();
 			qitaday.setAdapter(wheatherAdapter);
 		}
-		today_data.setText(weatherData.date);
+//		today_data.setText(weatherData.date);
 		current_city.setText(weatherData.results.get(0).currentCity);
 
 		prefsData();// 保存数据，再次进来直接展示
 
 		String shishi = oneWeatherInfo.date;
-		String[] split = shishi.split("日");
-		System.out.println("split[1]--------" + split[1]);
-		publish_text.setText("同步完成" + split[1]);
+		today_data.setText("同步完成");
+		publish_text.setText(shishi);
 
 		weather_info.setText(oneWeatherInfo.weather);
 		wind.setText(oneWeatherInfo.wind);
 		tmp.setText(oneWeatherInfo.temperature);
-		// pm2.5有可能返回来
+		// pm2.5有可能返回来""
 		if (weatherData.results.get(0).pm25.equals("")) {
 			pm25.setVisibility(View.INVISIBLE);
 		} else {
@@ -501,14 +500,14 @@ public class WeatherActivity extends BaseActivity implements OnClickListener,
 		boolean networkAvailable = checkNetworkAvailable(this);
 		if (networkAvailable == true) {
 			String currentCity = prefs.getString("current_city", "");// 更新的时候应该重新获取保存的城市名
-			publish_text.setText("同步中...");
+			today_data.setText("同步中...");
 			queryFromServer(currentCity);
 
 			if (weatherData != null && weatherData.status.equals("success")) {
 				srl.setRefreshing(false);
 			}
 		} else {
-			publish_text.setText("同步中...");
+			today_data.setText("同步中...");
 		}
 	}
 
